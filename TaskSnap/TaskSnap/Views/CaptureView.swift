@@ -6,9 +6,22 @@ struct CaptureView: View {
     @Binding var isPresented: Bool
     
     @StateObject private var captureViewModel = CaptureViewModel()
-    @State private var showImagePicker = false
-    @State private var showCamera = false
-    @State private var sourceType: UIImagePickerController.SourceType = .camera
+    @State private var showPhotoLibrary = false
+    @State private var showCameraPicker = false
+    @State private var showCameraView = false
+    @State private var showLimitAlert = false
+    
+    private var activeTaskCount: Int {
+        taskViewModel.todoTasks.count + taskViewModel.doingTasks.count
+    }
+    
+    private var canCreateTask: Bool {
+        TaskLimitManager.shared.canCreateTask(currentTaskCount: activeTaskCount)
+    }
+    
+    private var remainingTasks: Int {
+        TaskLimitManager.shared.remainingTasks(currentTaskCount: activeTaskCount)
+    }
     
     var body: some View {
         NavigationView {
@@ -31,13 +44,27 @@ struct CaptureView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showImagePicker) {
-                ImagePicker(image: $captureViewModel.capturedImage, sourceType: sourceType)
+            .sheet(isPresented: $showPhotoLibrary) {
+                PhotoLibraryPicker(
+                    image: $captureViewModel.capturedImage,
+                    isPresented: $showPhotoLibrary
+                )
+            }
+            .fullScreenCover(isPresented: $showCameraView) {
+                CameraView(
+                    capturedImage: $captureViewModel.capturedImage,
+                    isPresented: $showCameraView
+                )
             }
             .onChange(of: captureViewModel.capturedImage) { newImage in
                 if newImage != nil {
                     captureViewModel.analyzeImage(newImage!)
                 }
+            }
+            .alert("Task Limit Reached", isPresented: $showLimitAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("You've reached the free tier limit of \(TaskLimitManager.shared.freeTierLimit) active tasks. Complete some tasks or upgrade to Pro for unlimited tasks.")
             }
         }
     }
@@ -75,9 +102,7 @@ struct CaptureView: View {
             // Capture Buttons
             VStack(spacing: 16) {
                 Button {
-                    sourceType = .camera
-                    showCamera = true
-                    showImagePicker = true
+                    showCameraView = true
                     Haptics.shared.buttonTap()
                 } label: {
                     HStack {
@@ -94,8 +119,7 @@ struct CaptureView: View {
                 }
                 
                 Button {
-                    sourceType = .photoLibrary
-                    showImagePicker = true
+                    showPhotoLibrary = true
                     Haptics.shared.buttonTap()
                 } label: {
                     HStack {
@@ -126,7 +150,7 @@ struct CaptureView: View {
                     ZStack(alignment: .topTrailing) {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFit
+                            .scaledToFit()
                             .frame(maxHeight: 250)
                             .cornerRadius(16)
                         
@@ -228,9 +252,38 @@ struct CaptureView: View {
                         .cornerRadius(12)
                 }
                 
+                // Task Limit Warning (if applicable)
+                if !canCreateTask {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text("Task limit reached (\(TaskLimitManager.shared.freeTierLimit) tasks). Complete tasks to add more.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(12)
+                } else if remainingTasks <= 3 {
+                    HStack {
+                        Image(systemName: "info.circle.fill")
+                            .foregroundColor(.accentColor)
+                        Text("\(remainingTasks) task slots remaining on free tier")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color.accentColor.opacity(0.1))
+                    .cornerRadius(12)
+                }
+                
                 // Create Button
                 Button {
-                    createTask()
+                    if canCreateTask {
+                        createTask()
+                    } else {
+                        showLimitAlert = true
+                    }
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
@@ -240,11 +293,11 @@ struct CaptureView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.accentColor)
+                    .background(canCreateTask ? Color.accentColor : Color.gray)
                     .cornerRadius(16)
                 }
-                .disabled(captureViewModel.capturedImage == nil)
-                .opacity(captureViewModel.capturedImage == nil ? 0.6 : 1)
+                .disabled(captureViewModel.capturedImage == nil || !canCreateTask)
+                .opacity(captureViewModel.capturedImage == nil || !canCreateTask ? 0.6 : 1)
             }
             .padding()
         }
@@ -286,14 +339,61 @@ struct CategoryButton: View {
     }
 }
 
-// MARK: - Image Picker
-struct ImagePicker: UIViewControllerRepresentable {
+// MARK: - Photo Library Picker (Modern PHPicker)
+struct PhotoLibraryPicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
-    var sourceType: UIImagePickerController.SourceType
+    @Binding var isPresented: Bool
+    
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.filter = .images
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: PhotoLibraryPicker
+        
+        init(_ parent: PhotoLibraryPicker) {
+            self.parent = parent
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.isPresented = false
+            
+            guard let provider = results.first?.itemProvider else { return }
+            
+            if provider.canLoadObject(ofClass: UIImage.self) {
+                provider.loadObject(ofClass: UIImage.self) { image, error in
+                    DispatchQueue.main.async {
+                        if let image = image as? UIImage {
+                            self.parent.image = image
+                            Haptics.shared.cameraShutter()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Camera Picker (UIImagePicker for camera only)
+struct CameraImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    @Binding var isPresented: Bool
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
-        picker.sourceType = sourceType
+        picker.sourceType = .camera
         picker.delegate = context.coordinator
         return picker
     }
@@ -305,22 +405,22 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
     
     class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: ImagePicker
+        let parent: CameraImagePicker
         
-        init(_ parent: ImagePicker) {
+        init(_ parent: CameraImagePicker) {
             self.parent = parent
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            parent.isPresented = false
             if let image = info[.originalImage] as? UIImage {
                 parent.image = image
                 Haptics.shared.cameraShutter()
             }
-            picker.dismiss(animated: true)
         }
         
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
+            parent.isPresented = false
         }
     }
 }

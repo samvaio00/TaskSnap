@@ -16,8 +16,8 @@ struct VictoryView: View {
             // Background gradient
             LinearGradient(
                 colors: [
-                    Color.doneColor.opacity(0.3),
-                    Color.doneColor.opacity(0.1),
+                    Color("doneColor").opacity(0.3),
+                    Color("doneColor").opacity(0.1),
                     Color(.systemBackground)
                 ],
                 startPoint: .top,
@@ -25,9 +25,9 @@ struct VictoryView: View {
             )
             .ignoresSafeArea()
             
-            // Confetti
+            // Confetti - Dynamic based on reaction
             if showConfetti {
-                ConfettiView()
+                ConfettiView(reaction: selectedReaction)
                     .ignoresSafeArea()
             }
             
@@ -39,18 +39,18 @@ struct VictoryView: View {
                     VStack(spacing: 16) {
                         ZStack {
                             Circle()
-                                .fill(Color.doneColor.opacity(0.2))
+                                .fill(Color("doneColor").opacity(0.2))
                                 .frame(width: 120, height: 120)
                             
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 80))
-                                .foregroundColor(.doneColor)
+                                .foregroundColor(Color("doneColor"))
                                 .symbolEffect(.bounce, options: .repeating)
                         }
                         
                         Text("Task Complete!")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundColor(.doneColor)
+                            .foregroundColor(Color("doneColor"))
                         
                         Text("You captured your success!")
                             .font(.title3)
@@ -123,7 +123,7 @@ struct VictoryView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.doneColor)
+                        .background(Color("doneColor"))
                         .cornerRadius(16)
                     }
                     .padding(.horizontal)
@@ -151,6 +151,9 @@ struct VictoryView: View {
                 tasks: []
             )
         }
+        .overlay(
+            AchievementToastContainer()
+        )
     }
     
     // MARK: - Before & After Section
@@ -265,7 +268,7 @@ struct BeforeAfterSlider: View {
                         .foregroundColor(.white)
                         .shadow(radius: 2)
                         .padding(8)
-                        .background(Color.doneColor.opacity(0.8))
+                        .background(Color("doneColor").opacity(0.8))
                         .cornerRadius(8)
                         .padding(12)
                 }

@@ -1,6 +1,11 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Notification Names
+extension Notification.Name {
+    static let achievementUnlocked = Notification.Name("achievementUnlocked")
+}
+
 // MARK: - Date Extensions
 extension Date {
     func formattedString(style: DateFormatter.Style = .medium) -> String {
@@ -33,33 +38,8 @@ extension Date {
 }
 
 // MARK: - Color Extensions
-extension Color {
-    static let todoColor = Color("todoColor")
-    static let doingColor = Color("doingColor")
-    static let doneColor = Color("doneColor")
-    
-    static let categoryClean = Color("categoryClean")
-    static let categoryFix = Color("categoryFix")
-    static let categoryBuy = Color("categoryBuy")
-    static let categoryWork = Color("categoryWork")
-    static let categoryOrganize = Color("categoryOrganize")
-    static let categoryHealth = Color("categoryHealth")
-    static let categoryOther = Color("categoryOther")
-    
-    static let urgencyLow = Color("urgencyLow")
-    static let urgencyMedium = Color("urgencyMedium")
-    static let urgencyHigh = Color("urgencyHigh")
-    
-    static let achievementBronze = Color("achievementBronze")
-    static let achievementSilver = Color("achievementSilver")
-    static let achievementGold = Color("achievementGold")
-    
-    static let plantWilted = Color("plantWilted")
-    static let plantSprout = Color("plantSprout")
-    static let plantGrowing = Color("plantGrowing")
-    static let plantFlourishing = Color("plantFlourishing")
-    static let plantMature = Color("plantMature")
-}
+// Access colors via the asset catalog generated symbols (Xcode 15+)
+// For example: Color("todoColor") or .init("todoColor")
 
 // MARK: - View Extensions
 extension View {

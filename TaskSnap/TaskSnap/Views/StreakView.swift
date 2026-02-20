@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StreakView: View {
     @ObservedObject var gamificationViewModel: GamificationViewModel
+    @State private var showingDoneGallery = false
     
     var body: some View {
         NavigationView {
@@ -112,7 +113,7 @@ struct StreakView: View {
                 value: "\(gamificationViewModel.todayTasks.count)",
                 label: "Today",
                 icon: "checkmark.circle.fill",
-                color: .doneColor
+                color: Color("doneColor")
             )
         }
         .padding(.horizontal)
@@ -159,13 +160,46 @@ struct StreakView: View {
             }
             .frame(height: 20)
             
-            // Task count
+            // Task count and View Gallery button
             HStack {
-                Text("\(gamificationViewModel.todayTasks.count) of 5 tasks completed")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if gamificationViewModel.todayTasks.count == 0 {
+                    Text("No tasks completed yet today")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else if gamificationViewModel.todayTasks.count == 1 {
+                    Text("1 task completed today")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("\(gamificationViewModel.todayTasks.count) tasks completed today")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
                 Spacer()
+                
+                // View Gallery Button
+                if gamificationViewModel.todayTasks.count > 0 {
+                    Button {
+                        showingDoneGallery = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo.stack")
+                            Text("View Gallery")
+                        }
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color("doneColor"))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color("doneColor").opacity(0.15))
+                        .cornerRadius(12)
+                    }
+                }
             }
+        }
+        .sheet(isPresented: $showingDoneGallery) {
+            DoneTodayGalleryView(gamificationViewModel: gamificationViewModel)
         }
         .padding()
         .background(Color(.secondarySystemBackground))
@@ -183,7 +217,7 @@ struct StreakView: View {
                 ForEach(0..<7) { dayOffset in
                     let date = Calendar.current.date(byAdding: .day, value: dayOffset - 6, to: Date())!
                     let isToday = Calendar.current.isDateInToday(date)
-                    let hasTask = dayOffset == 6 && gamificationViewModel.todayTasks.count > 0
+                    let hasTask = gamificationViewModel.hasTasksFor(date: date)
                     
                     DayCell(
                         day: dayLetter(for: date),
@@ -229,7 +263,7 @@ struct DayCell: View {
             
             ZStack {
                 Circle()
-                    .fill(isActive ? Color.doneColor : Color(.tertiarySystemBackground))
+                    .fill(isActive ? Color("doneColor") : Color(.tertiarySystemBackground))
                     .frame(width: 40, height: 40)
                 
                 if isToday && !isActive {
@@ -246,7 +280,7 @@ struct DayCell: View {
             
             // Indicator dot
             Circle()
-                .fill(isActive ? Color.doneColor : Color.clear)
+                .fill(isActive ? Color("doneColor") : Color.clear)
                 .frame(width: 4, height: 4)
         }
         .frame(maxWidth: .infinity)

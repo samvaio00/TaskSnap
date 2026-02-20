@@ -1,37 +1,99 @@
 import Foundation
 import Combine
+import CoreData
 
-class GamificationViewModel: ObservableObject {
+class GamificationViewModel: NSObject, ObservableObject {
     @Published var streakManager = StreakManager.shared
     @Published var achievementManager = AchievementManager.shared
     @Published var todayTasks: [TaskEntity] = []
     
-    private let taskViewModel: TaskViewModel
+    private let viewContext: NSManagedObjectContext
     private var cancellables = Set<AnyCancellable>()
+    private var fetchController: NSFetchedResultsController<TaskEntity>?
     
-    init(taskViewModel: TaskViewModel = TaskViewModel()) {
-        self.taskViewModel = taskViewModel
+    init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
+        self.viewContext = context
+        super.init()
         
         // Check streak status on init
         streakManager.checkAndResetStreakIfNeeded()
         
-        // Subscribe to task changes
-        taskViewModel.$tasks
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.updateTodayTasks()
-            }
-            .store(in: &cancellables)
+        // Setup fetch controller to monitor Core Data changes
+        setupFetchController()
         
-        updateTodayTasks()
+        // Initial fetch
+        fetchTodayTasks()
     }
     
-    private func updateTodayTasks() {
-        todayTasks = taskViewModel.getTasksForToday()
+    private func setupFetchController() {
+        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \TaskEntity.completedAt, ascending: false)]
+        
+        fetchController = NSFetchedResultsController(
+            fetchRequest: request,
+            managedObjectContext: viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        
+        fetchController?.delegate = self
+        
+        do {
+            try fetchController?.performFetch()
+            fetchTodayTasks()
+        } catch {
+            print("Error setting up fetch controller: \(error)")
+        }
+    }
+    
+    private func fetchTodayTasks() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        
+        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "status == 'done' AND completedAt >= %@ AND completedAt < %@",
+            today as NSDate,
+            tomorrow as NSDate
+        )
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \TaskEntity.completedAt, ascending: false)]
+        
+        do {
+            todayTasks = try viewContext.fetch(request)
+            print("Fetched \(todayTasks.count) tasks for today")
+        } catch {
+            print("Error fetching today's tasks: \(error)")
+            todayTasks = []
+        }
+    }
+    
+    func hasTasksFor(date: Date) -> Bool {
+        return getTasksFor(date: date).count > 0
+    }
+    
+    func getTasksFor(date: Date) -> [TaskEntity] {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "status == 'done' AND completedAt >= %@ AND completedAt < %@",
+            startOfDay as NSDate,
+            endOfDay as NSDate
+        )
+        
+        do {
+            return try viewContext.fetch(request)
+        } catch {
+            print("Error fetching tasks for date: \(error)")
+            return []
+        }
     }
     
     var todayProgress: Double {
-        let target = 5.0 // Target 5 tasks per day
+        let target = 3.0 // Target 3 tasks per day
         return min(Double(todayTasks.count) / target, 1.0)
     }
     
@@ -76,6 +138,7 @@ class GamificationViewModel: ObservableObject {
     
     var motivationalMessage: String {
         let hour = Calendar.current.component(.hour, from: Date())
+        let count = todayTasks.count
         
         if streakManager.currentStreak == 0 {
             return "Start your streak today!"
@@ -85,12 +148,21 @@ class GamificationViewModel: ObservableObject {
             return "Don't break your \(streakManager.currentStreak)-day streak!"
         }
         
-        if hour < 12 {
-            return "Good morning! Let's crush some tasks!"
-        } else if hour < 17 {
-            return "Keep the momentum going!"
+        if count == 0 {
+            return "Complete a task to keep your streak!"
+        } else if count < 3 {
+            return "Great start! Keep going!"
         } else {
-            return "Finish strong today!"
+            return "Amazing productivity today! 🔥"
+        }
+    }
+}
+
+// MARK: - NSFetchedResultsControllerDelegate
+extension GamificationViewModel: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        DispatchQueue.main.async {
+            self.fetchTodayTasks()
         }
     }
 }

@@ -187,10 +187,19 @@ class AchievementManager: ObservableObject {
             
             achievements[index].progress = progress
             
-            if shouldUnlock {
+            if shouldUnlock && !achievements[index].isUnlocked {
                 achievements[index].isUnlocked = true
                 achievements[index].unlockedAt = Date()
                 updated = true
+                
+                // Post notification for achievement unlock
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        name: .achievementUnlocked,
+                        object: nil,
+                        userInfo: ["achievement": self.achievements[index]]
+                    )
+                }
             }
         }
         

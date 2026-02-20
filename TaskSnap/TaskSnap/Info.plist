@@ -48,5 +48,18 @@
     <string>TaskSnap needs camera access to capture photos of tasks you want to complete.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>TaskSnap needs photo library access to save and view task photos.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>TaskSnap needs permission to save photos to your library.</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.warnergears.TaskSnap</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>tasksnap</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

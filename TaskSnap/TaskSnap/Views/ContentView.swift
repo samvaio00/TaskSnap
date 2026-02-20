@@ -4,10 +4,16 @@ import CoreData
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var taskViewModel = TaskViewModel()
-    @StateObject private var gamificationViewModel = GamificationViewModel()
+    @StateObject private var gamificationViewModel: GamificationViewModel
     
     @State private var showingCaptureView = false
     @State private var selectedTab = 0
+    
+    init() {
+        // Initialize gamificationViewModel with shared context
+        let context = PersistenceController.shared.container.viewContext
+        _gamificationViewModel = StateObject(wrappedValue: GamificationViewModel(context: context))
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -40,6 +46,9 @@ struct ContentView: View {
         .sheet(isPresented: $showingCaptureView) {
             CaptureView(taskViewModel: taskViewModel, isPresented: $showingCaptureView)
         }
+        .overlay(
+            AchievementToastContainer()
+        )
         .onAppear {
             // Check streak status when app appears
             StreakManager.shared.checkAndResetStreakIfNeeded()

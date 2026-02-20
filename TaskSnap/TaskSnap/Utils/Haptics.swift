@@ -67,4 +67,15 @@ class Haptics {
     func buttonTap() {
         lightImpact.impactOccurred()
     }
+    
+    func achievementUnlocked() {
+        // Celebration pattern: success + medium + success
+        notification.notificationOccurred(.success)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            self.mediumImpact.impactOccurred()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.notification.notificationOccurred(.success)
+        }
+    }
 }

@@ -7,38 +7,46 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA0000000000000000000001 /* TaskSnapApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000001; };
-		AA0000000000000000000002 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000002; };
-		AA0000000000000000000003 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003; };
-		AA0000000000000000000004 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004; };
-		AA0000000000000000000005 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000005; };
-		AA0000000000000000000006 /* ImageClassificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000006; };
-		AA0000000000000000000007 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007; };
-		AA0000000000000000000008 /* CaptureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008; };
-		AA0000000000000000000009 /* GamificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009; };
-		AA000000000000000000000A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000A; };
-		AA000000000000000000000B /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000B; };
-		AA000000000000000000000C /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000C; };
-		AA000000000000000000000D /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000D; };
-		AA000000000000000000000E /* VictoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000E; };
-		AA000000000000000000000F /* AchievementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000F; };
-		AA0000000000000000000010 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010; };
-		AA0000000000000000000011 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000011; };
-		AA0000000000000000000012 /* UrgencyGlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000012; };
-		AA0000000000000000000013 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000013; };
-		AA0000000000000000000014 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000014; };
-		AA0000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000015; };
-		AA0000000000000000000016 /* TaskSnap.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000016; };
-		AA0000000000000000000017 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000017; };
-		AA0000000000000000000018 /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000018; };
-		AA0000000000000000000019 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000019; };
-		AA000000000000000000001A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001A; };
-		AA000000000000000000001B /* Combine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001B; };
-		AA000000000000000000001C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001C; };
-		AA000000000000000000001D /* TaskSnapWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001D; };
-		AA000000000000000000001E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001A; };
-		AA000000000000000000001F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001C; };
-		AA0000000000000000000020 /* TaskSnapWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA2000000000000000000001; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA0000000000000000000001 /* TaskSnapApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000001 /* TaskSnapApp.swift */; };
+		AA0000000000000000000002 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000002 /* PersistenceController.swift */; };
+		AA0000000000000000000003 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* Task.swift */; };
+		AA0000000000000000000004 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* StreakManager.swift */; };
+		AA0000000000000000000005 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000005 /* Achievement.swift */; };
+		AA0000000000000000000006 /* ImageClassificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000006 /* ImageClassificationService.swift */; };
+		AA0000000000000000000007 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007 /* TaskViewModel.swift */; };
+		AA0000000000000000000008 /* CaptureViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* CaptureViewModel.swift */; };
+		AA0000000000000000000009 /* GamificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* GamificationViewModel.swift */; };
+		AA000000000000000000000A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000A /* ContentView.swift */; };
+		AA000000000000000000000B /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000B /* DashboardView.swift */; };
+		AA000000000000000000000C /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000C /* CaptureView.swift */; };
+		AA000000000000000000000D /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000D /* TaskDetailView.swift */; };
+		AA000000000000000000000E /* VictoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000E /* VictoryView.swift */; };
+		AA0000000000000000000065 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000066 /* OnboardingView.swift */; };
+		AA000000000000000000000F /* AchievementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000000F /* AchievementView.swift */; };
+		AA0000000000000000000010 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* StreakView.swift */; };
+		AA0000000000000000000011 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000011 /* ConfettiView.swift */; };
+		AA0000000000000000000012 /* UrgencyGlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000012 /* UrgencyGlow.swift */; };
+		AA0000000000000000000013 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000013 /* Extensions.swift */; };
+		AA0000000000000000000014 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000014 /* Haptics.swift */; };
+		AA0000000000000000000015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000015 /* Assets.xcassets */; };
+		AA0000000000000000000016 /* TaskSnap.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000016 /* TaskSnap.xcdatamodeld */; };
+		AA0000000000000000000017 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000017 /* CoreData.framework */; };
+		AA0000000000000000000018 /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000018 /* CoreML.framework */; };
+		AA0000000000000000000019 /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000019 /* Vision.framework */; };
+		AA000000000000000000001A /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001A /* SwiftUI.framework */; };
+		AA000000000000000000001B /* Combine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001B /* Combine.framework */; };
+		AA000000000000000000001C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001C /* WidgetKit.framework */; };
+		AA000000000000000000001D /* TaskSnapWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001D /* TaskSnapWidgets.swift */; };
+		AA000000000000000000001E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001A /* SwiftUI.framework */; };
+		AA000000000000000000001F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA100000000000000000001C /* WidgetKit.framework */; };
+		AA0000000000000000000020 /* TaskSnapWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA2000000000000000000001 /* TaskSnapWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AA0000000000000000000055 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000056 /* AVFoundation.framework */; };
+		AA0000000000000000000057 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000058 /* CameraView.swift */; };
+		AA0000000000000000000059 /* FocusTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000060 /* FocusTimerView.swift */; };
+		AA0000000000000000000062 /* TaskLimitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000061 /* TaskLimitManager.swift */; };
+		AA0000000000000000000063 /* DoneTodayGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000064 /* DoneTodayGalleryView.swift */; };
+		AA0000000000000000000071 /* A_SharedAchievementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000072 /* A_SharedAchievementUI.swift */; };
+		AA0000000000000000000073 /* A_AchievementNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000074 /* A_AchievementNotification.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +88,7 @@
 		AA100000000000000000000C /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		AA100000000000000000000D /* TaskDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailView.swift; sourceTree = "<group>"; };
 		AA100000000000000000000E /* VictoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VictoryView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000066 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		AA100000000000000000000F /* AchievementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementView.swift; sourceTree = "<group>"; };
 		AA1000000000000000000010 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		AA1000000000000000000011 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
@@ -87,7 +96,6 @@
 		AA1000000000000000000013 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		AA1000000000000000000014 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		AA1000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AA1000000000000000000016 /* TaskSnap.xcdatamodeld */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TaskSnap.xcdatamodeld; sourceTree = "<group>"; };
 		AA1000000000000000000017 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		AA1000000000000000000018 /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		AA1000000000000000000019 /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
@@ -98,6 +106,16 @@
 		AA100000000000000000001E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA100000000000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA1000000000000000000020 /* TaskSnap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskSnap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA1000000000000000000050 /* TaskSnap.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TaskSnap.xcdatamodel; sourceTree = "<group>"; };
+		AA1000000000000000000056 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		AA1000000000000000000058 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000060 /* FocusTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimerView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000061 /* TaskLimitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskLimitManager.swift; sourceTree = "<group>"; };
+		AA1000000000000000000064 /* DoneTodayGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoneTodayGalleryView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000068 /* AA_AchievementToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AA_AchievementToastView.swift; sourceTree = "<group>"; };
+		AA1000000000000000000070 /* AA_AchievementNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AA_AchievementNotificationManager.swift; sourceTree = "<group>"; };
+		AA1000000000000000000072 /* A_SharedAchievementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = A_SharedAchievementUI.swift; sourceTree = "<group>"; };
+		AA1000000000000000000074 /* A_AchievementNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = A_AchievementNotification.swift; sourceTree = "<group>"; };
 		AA2000000000000000000001 /* TaskSnapWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TaskSnapWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -108,6 +126,7 @@
 			files = (
 				AA0000000000000000000017 /* CoreData.framework in Frameworks */,
 				AA0000000000000000000018 /* CoreML.framework in Frameworks */,
+				AA0000000000000000000055 /* AVFoundation.framework in Frameworks */,
 				AA0000000000000000000019 /* Vision.framework in Frameworks */,
 				AA000000000000000000001A /* SwiftUI.framework in Frameworks */,
 				AA000000000000000000001B /* Combine.framework in Frameworks */,
@@ -142,6 +161,8 @@
 			children = (
 				AA1000000000000000000001 /* TaskSnapApp.swift */,
 				AA1000000000000000000002 /* PersistenceController.swift */,
+				AA1000000000000000000072 /* A_SharedAchievementUI.swift */,
+				AA1000000000000000000074 /* A_AchievementNotification.swift */,
 				AA1000000000000000000016 /* TaskSnap.xcdatamodeld */,
 				AA5000000000000000000006 /* Models */,
 				AA5000000000000000000007 /* Services */,
@@ -168,6 +189,7 @@
 			children = (
 				AA1000000000000000000017 /* CoreData.framework */,
 				AA1000000000000000000018 /* CoreML.framework */,
+				AA1000000000000000000056 /* AVFoundation.framework */,
 				AA1000000000000000000019 /* Vision.framework */,
 				AA100000000000000000001A /* SwiftUI.framework */,
 				AA100000000000000000001B /* Combine.framework */,
@@ -189,6 +211,7 @@
 			isa = PBXGroup;
 			children = (
 				AA1000000000000000000003 /* Task.swift */,
+				AA1000000000000000000061 /* TaskLimitManager.swift */,
 				AA1000000000000000000004 /* StreakManager.swift */,
 				AA1000000000000000000005 /* Achievement.swift */,
 			);
@@ -199,6 +222,7 @@
 			isa = PBXGroup;
 			children = (
 				AA1000000000000000000006 /* ImageClassificationService.swift */,
+				AA1000000000000000000070 /* AA_AchievementNotificationManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -221,10 +245,14 @@
 				AA100000000000000000000C /* CaptureView.swift */,
 				AA100000000000000000000D /* TaskDetailView.swift */,
 				AA100000000000000000000E /* VictoryView.swift */,
+				AA1000000000000000000066 /* OnboardingView.swift */,
+				AA1000000000000000000064 /* DoneTodayGalleryView.swift */,
 				AA100000000000000000000F /* AchievementView.swift */,
 				AA1000000000000000000010 /* StreakView.swift */,
 				AA1000000000000000000011 /* ConfettiView.swift */,
 				AA1000000000000000000012 /* UrgencyGlow.swift */,
+				AA1000000000000000000058 /* CameraView.swift */,
+				AA1000000000000000000060 /* FocusTimerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -285,7 +313,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					AA2000000000000000000002 = {
 						CreatedOnToolsVersion = 15.0;
@@ -338,8 +366,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0000000000000000000001 /* TaskSnapApp.swift in Sources */,
+				AA0000000000000000000071 /* A_SharedAchievementUI.swift in Sources */,
+				AA0000000000000000000073 /* A_AchievementNotification.swift in Sources */,
 				AA0000000000000000000002 /* PersistenceController.swift in Sources */,
 				AA0000000000000000000003 /* Task.swift in Sources */,
+				AA0000000000000000000062 /* TaskLimitManager.swift in Sources */,
 				AA0000000000000000000004 /* StreakManager.swift in Sources */,
 				AA0000000000000000000005 /* Achievement.swift in Sources */,
 				AA0000000000000000000006 /* ImageClassificationService.swift in Sources */,
@@ -351,10 +382,15 @@
 				AA000000000000000000000C /* CaptureView.swift in Sources */,
 				AA000000000000000000000D /* TaskDetailView.swift in Sources */,
 				AA000000000000000000000E /* VictoryView.swift in Sources */,
+				AA0000000000000000000065 /* OnboardingView.swift in Sources */,
+				AA0000000000000000000063 /* DoneTodayGalleryView.swift in Sources */,
 				AA000000000000000000000F /* AchievementView.swift in Sources */,
 				AA0000000000000000000010 /* StreakView.swift in Sources */,
 				AA0000000000000000000011 /* ConfettiView.swift in Sources */,
 				AA0000000000000000000012 /* UrgencyGlow.swift in Sources */,
+				AA0000000000000000000057 /* CameraView.swift in Sources */,
+				AA0000000000000000000059 /* FocusTimerView.swift in Sources */,
+
 				AA0000000000000000000013 /* Extensions.swift in Sources */,
 				AA0000000000000000000014 /* Haptics.swift in Sources */,
 				AA0000000000000000000016 /* TaskSnap.xcdatamodeld in Sources */,
@@ -374,7 +410,7 @@
 /* Begin PBXTargetDependency section */
 		AA3000000000000000000002 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AA2000000000000000000003 /* TaskSnapWidgetsExtension */;
+			target = AA2000000000000000000002 /* TaskSnap */;
 			targetProxy = AA3000000000000000000001 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -384,6 +420,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOLS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -438,6 +475,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -447,6 +485,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOLS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -494,6 +533,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -508,6 +548,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 7QTVLH9C2T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TaskSnap/Info.plist;
@@ -518,7 +559,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -541,6 +582,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 7QTVLH9C2T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TaskSnap/Info.plist;
@@ -551,7 +593,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -570,8 +612,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TaskSnapWidgets/TaskSnapWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7QTVLH9C2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TaskSnapWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TaskSnapWidgets;
@@ -597,8 +641,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TaskSnapWidgets/TaskSnapWidgets.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7QTVLH9C2T;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TaskSnapWidgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TaskSnapWidgets;
@@ -655,9 +701,9 @@
 		AA1000000000000000000016 /* TaskSnap.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				AA1000000000000000000021 /* TaskSnap.xcdatamodel */,
+				AA1000000000000000000050 /* TaskSnap.xcdatamodel */,
 			);
-			currentVersion = AA1000000000000000000021 /* TaskSnap.xcdatamodel */;
+			currentVersion = AA1000000000000000000050 /* TaskSnap.xcdatamodel */;
 			path = TaskSnap.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -69,6 +69,13 @@ class TaskViewModel: ObservableObject {
         if status == .done && task.completedAt == nil {
             task.completedAt = Date()
             StreakManager.shared.recordTaskCompletion()
+            
+            // Check for achievements
+            AchievementManager.shared.checkAchievements(
+                streak: StreakManager.shared.currentStreak,
+                tasksCompleted: doneTasks.count + 1, // +1 since we're completing now
+                tasks: tasks
+            )
         }
         
         saveContext()
@@ -132,13 +139,17 @@ class TaskViewModel: ObservableObject {
     }
     
     func getTasksForToday() -> [TaskEntity] {
+        return getTasksFor(date: Date())
+    }
+    
+    func getTasksFor(date: Date) -> [TaskEntity] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         
         return doneTasks.filter { task in
             guard let completedAt = task.completedAt else { return false }
-            return completedAt >= today && completedAt < tomorrow
+            return completedAt >= startOfDay && completedAt < endOfDay
         }
     }
     

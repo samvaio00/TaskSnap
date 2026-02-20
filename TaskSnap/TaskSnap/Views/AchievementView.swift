@@ -59,7 +59,7 @@ struct AchievementView: View {
                     .trim(from: 0, to: progressPercentage)
                     .stroke(
                         AngularGradient(
-                            colors: [.achievementBronze, .achievementSilver, .achievementGold, .achievementBronze],
+                            colors: [Color("achievementBronze"), Color("achievementSilver"), Color("achievementGold"), Color("achievementBronze")],
                             center: .center
                         ),
                         style: StrokeStyle(lineWidth: 20, lineCap: .round)
@@ -143,7 +143,7 @@ struct AchievementCard: View {
                 if achievement.isUnlocked {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption)
-                        .foregroundColor(.doneColor)
+                        .foregroundColor(Color("doneColor"))
                         .background(Color.white)
                         .clipShape(Circle())
                         .offset(x: 20, y: 20)
@@ -214,7 +214,7 @@ struct AchievementDetailView: View {
                     if achievement.isUnlocked {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.title)
-                            .foregroundColor(.doneColor)
+                            .foregroundColor(Color("doneColor"))
                             .background(Color.white)
                             .clipShape(Circle())
                             .offset(x: 50, y: 50)
@@ -238,7 +238,7 @@ struct AchievementDetailView: View {
                     VStack(spacing: 8) {
                         Text("Unlocked!")
                             .font(.headline)
-                            .foregroundColor(.doneColor)
+                            .foregroundColor(Color("doneColor"))
                         
                         if let date = achievement.unlockedAt {
                             Text("on \(date.formattedString())")
@@ -247,7 +247,7 @@ struct AchievementDetailView: View {
                         }
                     }
                     .padding()
-                    .background(Color.doneColor.opacity(0.1))
+                    .background(Color("doneColor").opacity(0.1))
                     .cornerRadius(12)
                 } else {
                     VStack(spacing: 8) {

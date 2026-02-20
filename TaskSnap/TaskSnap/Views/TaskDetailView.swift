@@ -9,6 +9,9 @@ struct TaskDetailView: View {
     @State private var showingCompleteConfirmation = false
     @State private var showingDeleteConfirmation = false
     @State private var showingImagePicker = false
+    @State private var showingPhotoLibrary = false
+    @State private var showingCompletionOptions = false
+    @State private var showingFocusTimer = false
     @State private var afterImage: UIImage?
     
     var body: some View {
@@ -51,7 +54,31 @@ struct TaskDetailView: View {
                 }
             }
             .sheet(isPresented: $showingImagePicker) {
-                ImagePicker(image: $afterImage, sourceType: .camera)
+                CameraImagePicker(image: $afterImage, isPresented: $showingImagePicker)
+            }
+            .sheet(isPresented: $showingPhotoLibrary) {
+                PhotoLibraryPicker(image: $afterImage, isPresented: $showingPhotoLibrary)
+            }
+            .sheet(isPresented: $showingFocusTimer) {
+                FocusTimerView(
+                    task: task,
+                    taskViewModel: taskViewModel,
+                    onComplete: { completedTask in
+                        showingFocusTimer = false
+                        onComplete(completedTask)
+                    }
+                )
+            }
+            .confirmationDialog("Complete Task", isPresented: $showingCompletionOptions, titleVisibility: .visible) {
+                Button("Take Photo") {
+                    showingImagePicker = true
+                }
+                Button("Choose from Library") {
+                    showingPhotoLibrary = true
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Take an after photo to celebrate your accomplishment!")
             }
             .alert("Complete Task?", isPresented: $showingCompleteConfirmation) {
                 Button("Cancel", role: .cancel) {}
@@ -74,6 +101,9 @@ struct TaskDetailView: View {
                     showingCompleteConfirmation = true
                 }
             }
+            .overlay(
+                AchievementToastContainer()
+            )
         }
     }
     
@@ -93,7 +123,7 @@ struct TaskDetailView: View {
                 if let image = task.beforeImage {
                     Image(uiImage: image)
                         .resizable()
-                        .scaledToFit
+                        .scaledToFit()
                         .cornerRadius(16)
                         .shadow(radius: 4)
                 } else {
@@ -115,34 +145,69 @@ struct TaskDetailView: View {
                         Text("AFTER")
                             .font(.caption)
                             .fontWeight(.bold)
-                            .foregroundColor(.doneColor)
+                            .foregroundColor(Color("doneColor"))
                         Spacer()
                     }
                     
                     if let image = task.afterImage {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFit
+                            .scaledToFit()
                             .cornerRadius(16)
                             .shadow(radius: 4)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.doneColor, lineWidth: 3)
+                                    .stroke(Color("doneColor"), lineWidth: 3)
                             )
                     } else {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.doneColor.opacity(0.1))
-                            .frame(height: 200)
-                            .overlay(
-                                VStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 60))
-                                        .foregroundColor(.doneColor)
-                                    Text("Completed!")
-                                        .font(.headline)
-                                        .foregroundColor(.doneColor)
+                        // No after image - show capture options
+                        VStack(spacing: 12) {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color("doneColor").opacity(0.1))
+                                .frame(height: 120)
+                                .overlay(
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "camera.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(Color("doneColor"))
+                                        Text("Add After Photo")
+                                            .font(.headline)
+                                            .foregroundColor(Color("doneColor"))
+                                    }
+                                )
+                            
+                            // Camera button
+                            Button {
+                                showingImagePicker = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "camera.fill")
+                                    Text("Take Photo")
                                 }
-                            )
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color("doneColor"))
+                                .cornerRadius(12)
+                            }
+                            
+                            // Photo Library button
+                            Button {
+                                showingPhotoLibrary = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "photo.on.rectangle")
+                                    Text("Choose from Library")
+                                }
+                                .font(.headline)
+                                .foregroundColor(Color("doneColor"))
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color("doneColor").opacity(0.1))
+                                .cornerRadius(12)
+                            }
+                        }
                     }
                 }
             }
@@ -181,13 +246,13 @@ struct TaskDetailView: View {
             if task.isUrgent && task.taskStatus != .done {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.urgencyHigh)
+                        .foregroundColor(Color("urgencyHigh"))
                     Text("Urgent")
                         .fontWeight(.semibold)
                 }
-                .foregroundColor(.urgencyHigh)
+                .foregroundColor(Color("urgencyHigh"))
                 .padding()
-                .background(Color.urgencyHigh.opacity(0.1))
+                .background(Color("urgencyHigh").opacity(0.1))
                 .cornerRadius(12)
             }
         }
@@ -211,13 +276,13 @@ struct TaskDetailView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.doingColor)
+                    .background(Color("doingColor"))
                     .cornerRadius(16)
                 }
                 
                 Button {
                     Haptics.shared.cameraShutter()
-                    showingImagePicker = true
+                    showingCompletionOptions = true
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
@@ -227,13 +292,30 @@ struct TaskDetailView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.doneColor)
+                    .background(Color("doneColor"))
                     .cornerRadius(16)
                 }
             } else if task.taskStatus == .doing {
+                // Focus Timer Button
+                Button {
+                    Haptics.shared.buttonTap()
+                    showingFocusTimer = true
+                } label: {
+                    HStack {
+                        Image(systemName: "timer.circle.fill")
+                        Text("Start Focus Timer")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.accentColor)
+                    .cornerRadius(16)
+                }
+                
                 Button {
                     Haptics.shared.cameraShutter()
-                    showingImagePicker = true
+                    showingCompletionOptions = true
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
@@ -243,7 +325,7 @@ struct TaskDetailView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.doneColor)
+                    .background(Color("doneColor"))
                     .cornerRadius(16)
                 }
                 
@@ -308,12 +390,12 @@ struct TaskDetailView: View {
                 if let dueDate = task.dueDate {
                     HStack {
                         Image(systemName: "calendar.badge.clock")
-                            .foregroundColor(task.isOverdue ? .urgencyHigh : .secondary)
+                            .foregroundColor(task.isOverdue ? Color("urgencyHigh") : .secondary)
                         Text("Due")
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(dueDate.formattedString())
-                            .foregroundColor(task.isOverdue ? .urgencyHigh : .primary)
+                            .foregroundColor(task.isOverdue ? Color("urgencyHigh") : .primary)
                         
                         if task.isOverdue {
                             Text("Overdue")
@@ -322,7 +404,7 @@ struct TaskDetailView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color.urgencyHigh)
+                                .background(Color("urgencyHigh"))
                                 .cornerRadius(8)
                         }
                     }
@@ -334,12 +416,12 @@ struct TaskDetailView: View {
                     
                     HStack {
                         Image(systemName: "checkmark.circle")
-                            .foregroundColor(.doneColor)
+                            .foregroundColor(Color("doneColor"))
                         Text("Completed")
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(completedAt.formattedString())
-                            .foregroundColor(.doneColor)
+                            .foregroundColor(Color("doneColor"))
                     }
                 }
                 
