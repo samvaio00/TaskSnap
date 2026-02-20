@@ -1,0 +1,155 @@
+TaskSnap - Visual Task Management App for the ADHD Brain
+Enhanced Project Specification & Development Prompt (v2.1)
+
+========================================
+PROJECT OVERVIEW
+========================================
+App Name: TaskSnap
+Tagline: "Capture Your Chaos. See Your Success."
+Target Platform: iOS (iPhone/iPad), with future Apple Watch support
+Development Approach: Privacy-first, local-first storage with optional iCloud sync
+Timeline: 3-4 months MVP, 6-8 months full version
+Budget: $30K-50K development (MVP)
+
+========================================
+CORE CONCEPT & ADHD-FIRST PHILOSOPHY
+========================================
+A visual task management app meticulously engineered for the ADHD brain. TaskSnap replaces traditional, text-heavy to-do lists with a photo-centric workflow that aligns with the cognitive strengths of visual thinkers and those with executive function challenges. It aims to reduce the friction of task initiation, combat time blindness, and provide the dopamine feedback necessary to build and maintain momentum.
+
+Key Innovation: The core loop is designed to be effortless and rewarding:
+1.  **Capture:** Instantly photograph a task with zero friction.
+2.  **Clarify:** AI suggests a title, or you can tap a quick-category icon.
+3.  **Complete:** Take an "after" photo to create a satisfying visual record of your accomplishment.
+
+This document outlines enhancements focused on deepening the ADHD-centric design, increasing user engagement, and ensuring MVP viability without adding excessive overhead.
+
+========================================
+TARGET AUDIENCE
+========================================
+
+Primary Users:
+- Adults with ADHD (diagnosed or self-identified) who struggle with executive dysfunction.
+- Visual learners who find text-based apps unmotivating and difficult to process.
+- Individuals experiencing task paralysis, overwhelm, and a lack of follow-through with conventional productivity apps.
+
+Enhanced User Personas:
+1.  **Alex (29, Freelance Graphic Designer with ADHD):** Alex is overwhelmed by project and life admin. Text lists feel like a "wall of awful." They need a way to quickly capture visual reminders (e.g., a messy desk, an email to reply to) without breaking their creative flow. They are motivated by visual progress and struggle with object permanence—if they can't see it, it doesn't exist.
+2.  **Jenna (38, Parent with ADHD):** Jenna manages household tasks for her family. She needs to track things like a broken toy that needs fixing, a school form that needs signing, and a pantry that needs restocking. She needs a system that is faster than typing and can visually communicate priorities to her partner or older children.
+3.  **Sam (22, University Student with ADHD):** Sam struggles with initiating large assignments and remembering multi-step tasks. They need to break down overwhelming tasks (e.g., "write essay") into small, visual, achievable steps. They are highly motivated by gamification, streaks, and immediate feedback.
+
+========================================
+ENHANCED CORE FEATURES (ADHD-FOCUSED)
+========================================
+
+**MVP FEATURES (Phase 1 - Lean & Viable):**
+
+1.  **Frictionless Photo Capture (The "Quick Snap" Feature)**
+    -   **Lock Screen & Home Screen Widgets:** A single tap opens the camera, ready to capture. No need to find the app or navigate menus. This is crucial for capturing fleeting thoughts and intentions.
+    -   **Post-Capture Triage:** After snapping a photo, the user is presented with a simple, non-overwhelming screen: "What's this?" with large, iconic buttons for common categories (e.g., "Clean," "Fix," "Buy," "Work") and an optional field for a title, pre-filled by AI.
+    -   **AI-Powered Title Suggestion (Simplified):** On-device image analysis (using a pre-trained CoreML model like MobileNetV2) suggests a simple, clear task name (e.g., "Wash Dishes," "Organize Desk"). The goal is to reduce cognitive load, not to be perfectly accurate.
+
+2.  **The "Dopamine Dashboard" (Visual Task Board)**
+    -   **Visual Grid View:** A clean, visually scannable grid of "before" photos. This is the default view, providing an instant overview of what needs to be done.
+    -   **"Urgency Glow":** Tasks with an approaching due date (or flagged as high priority) will have a subtle, animated glow (e.g., a soft red pulse) to draw attention without causing anxiety.
+    -   **Spatial Organization:** Users can drag and drop tasks into simple, visually distinct columns: "To Do," "Doing," and "Done." This mimics the body-doubling effect of having a clear, shared workspace.
+
+3.  **The "Victory View" (Task Completion)**
+    -   **Satisfying Before-and-After:** Completing a task prompts the user to take an "after" photo. The app then presents a highly satisfying, full-screen, side-by-side comparison or a slider effect. This is the core dopamine reward loop.
+    -   **Micro-Celebrations:** Upon completion, a delightful, non-intrusive animation (e.g., sparkling confetti, a checkmark transforming into a star) and custom haptic feedback are triggered. The user can choose their celebration theme.
+    -   **"Done for Today" Gallery:** A dedicated, beautiful gallery showcasing all the "after" photos from tasks completed that day, providing a powerful visual summary of productivity.
+
+4.  **Gamification & Progress (The "Momentum Meter")**
+    -   **Visual Streak Tracker:** Instead of just a number, a plant or character grows with each consecutive day a task is completed. Breaking the streak causes the plant to wilt slightly, creating a gentle incentive to return.
+    -   **Achievement Badges:** Awarded for meaningful patterns, not just raw numbers (e.g., "Morning Warrior" for completing 3 tasks before 10 AM, "Clutter Buster" for completing 5 cleaning tasks).
+
+**ADVANCED FEATURES (Phase 2 - Post-MVP):**
+
+1.  **Focus Mode & Body Doubling**
+    -   **Task Timer with Visual Progress:** When a user starts a task, a visual timer (e.g., a shrinking circle around the task photo) appears. This helps combat time blindness.
+    -   **Virtual "Body Double" Room:** A premium feature where a user can enter a virtual focus session. They see avatars of other users who are also working, creating a sense of silent accountability. No chat, just shared presence.
+
+2.  **iCloud Sync & Collaboration**
+    -   Seamless cross-device synchronization of tasks and photos.
+    -   **Shared Spaces:** Ability to share a specific task list (e.g., "Household Chores") with a partner or family member, who can also use the photo-based system.
+
+3.  **Advanced AI & Insights**
+    -   **Pattern Recognition:** The app identifies your "Productivity Hotspots" (e.g., "You're great at starting cleaning tasks on Tuesday mornings") and provides gentle nudges.
+    -   **"Clutter Score":** An experimental feature that uses computer vision to estimate the complexity of a task from the photo, helping the user break it down into smaller steps.
+
+========================================
+ENHANCED USER INTERFACE & EXPERIENCE (UI/UX)
+========================================
+
+**ADHD-First Design Principles:**
+
+-   **Dopamine-First Design:** Every interaction is designed to provide a small, immediate reward, from the haptic click of the camera to the completion animation.
+-   **Reduce Time-to-Action:** The primary goal is to minimize the steps between intention and action. Widgets and a streamlined capture flow are key.
+-   **Embrace Visual Thinking:** Prioritize images, icons, and color over text. Text is secondary, used for clarification, not as the primary interface.
+-   **Support Executive Functions:** The UI acts as an external scaffold for working memory, task initiation, and emotional regulation.
+-   **Sensory-Friendly & Customizable:** Allow users to control the sensory experience. Offer themes (e.g., "Calm," "Playful," "Minimal"), adjustable animation intensity, and a choice of completion sounds.
+
+**Redesigned Key Screens:**
+
+1.  **Home Screen ("The Launchpad")**
+    -   Dominated by a large, inviting camera button with the text "Capture a Task."
+    -   Below, a small, horizontally scrolling preview of the "To Do" grid. Tapping it expands to the full Dopamine Dashboard.
+    -   A prominent display of the daily streak visual (the growing plant).
+
+2.  **The Dopamine Dashboard (Task Board)**
+    -   A clean, 3-column Kanban-style board: "To Do," "Doing," "Done."
+    -   Tasks are represented by their photo thumbnails. No distracting text unless tapped.
+    -   A simple "+" button in the "To Do" column also initiates the camera, providing another entry point.
+
+3.  **Task Detail View (The "Focus Zone")**
+    -   Accessed by tapping a photo. The "before" photo is the main element.
+    -   Below the photo are large, tappable buttons for actions: "Start Timer," "Set Due Date," "Mark as Urgent," "Complete Task."
+    -   The task title is displayed in a clean, readable font, but is less prominent than the photo.
+
+4.  **The "Victory View" (Completion Screen)**
+    -   Full-screen, interactive before-and-after slider.
+    -   A prominent "Share Your Victory" button, which creates a clean, branded image of the before-and-after comparison for social media.
+    -   A simple prompt: "How does this feel?" with emoji reactions, which feeds into the app's analytics on task satisfaction.
+
+========================================
+REFINED REVENUE MODEL
+========================================
+
+**FREEMIUM STRUCTURE:**
+
+**Free Tier ("Starter"):**
+-   Up to 15 active tasks.
+-   Core photo task creation and completion loop.
+-   Basic AI title suggestions.
+-   Standard completion animations and haptics.
+-   Local storage only.
+
+**Pro Tier ("Momentum") - $5.99/month or $59.99/year:**
+-   Unlimited tasks.
+-   **iCloud Sync** across all devices.
+-   **Advanced Gamification:** Unlock new streak visuals, achievement badges, and celebration themes.
+-   **Focus Mode & Virtual Body Doubling:** Access to the accountability timer and shared focus rooms.
+-   **Enhanced Analytics:** Unlock insights into your productivity patterns.
+-   **Advanced AI:** Higher accuracy suggestions and future features like the "Clutter Score."
+-   Priority customer support.
+
+This model makes the core loop accessible to everyone while tying the most powerful motivation and sync features to the subscription, creating a strong incentive to upgrade.
+
+========================================
+SIMPLIFIED AI & TECHNICAL SPECIFICATIONS
+========================================
+
+**MVP AI Strategy (Lean & Effective):**
+-   **Single, Pre-Trained Model:** Utilize a lightweight, on-device model like **MobileNetV3** (converted to Core ML). This avoids the cost and complexity of training a custom model from scratch for the MVP.
+-   **Focus on Broad Categories:** The AI's initial goal is to differentiate between a dozen common household/work scenarios (e.g., "laundry," "dishes," "desk," "email"). High accuracy on a small set of tasks is better than low accuracy on many.
+-   **Privacy-First Guarantee:** All marketing will heavily emphasize that **photos are processed on-device and never uploaded to a server for analysis.** This is a critical trust-building feature.
+
+**Technical Stack (No Changes, Re-Affirmed):**
+-   Language: Swift 5.0+
+-   UI Framework: SwiftUI
+-   Local Storage: Core Data + FileManager
+-   AI/ML: Vision Framework + Core ML (with a pre-trained model for MVP)
+-   Widgets: WidgetKit
+
+========================================
+END OF ENHANCED DOCUMENT
+========================================
