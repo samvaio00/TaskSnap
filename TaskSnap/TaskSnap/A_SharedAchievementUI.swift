@@ -30,6 +30,28 @@ class AchievementToastManager: ObservableObject {
         }
     }
     
+    func showToast(title: String, subtitle: String, icon: String, color: String) {
+        // Create a temporary achievement-like toast
+        let tempAchievement = Achievement(
+            id: UUID().uuidString,
+            title: title,
+            description: subtitle,
+            icon: icon,
+            color: color,
+            category: .starter,
+            criteria: .tasksCompleted(count: 1),
+            isUnlocked: true,
+            unlockedAt: Date(),
+            progress: 1.0
+        )
+        let toast = AchievementToast(achievement: tempAchievement)
+        queue.append(toast)
+        
+        if currentToast == nil {
+            displayNext()
+        }
+    }
+    
     private func displayNext() {
         guard !queue.isEmpty else {
             currentToast = nil

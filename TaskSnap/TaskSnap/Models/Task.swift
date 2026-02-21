@@ -2,7 +2,7 @@ import Foundation
 import CoreData
 import UIKit
 
-enum TaskStatus: String, CaseIterable {
+enum TaskStatus: String, CaseIterable, Sendable {
     case todo = "todo"
     case doing = "doing"
     case done = "done"
@@ -24,7 +24,7 @@ enum TaskStatus: String, CaseIterable {
     }
 }
 
-enum TaskCategory: String, CaseIterable {
+enum TaskCategory: String, CaseIterable, Sendable {
     case clean = "clean"
     case fix = "fix"
     case buy = "buy"
@@ -121,9 +121,31 @@ extension TaskEntity {
         }
         return .none
     }
+    
+    // MARK: - Notification Support
+    
+    var notificationIdentifier: String? {
+        guard let id = id else { return nil }
+        return "tasksnap.task.\(id.uuidString)"
+    }
+    
+    func scheduleReminder() {
+        NotificationManager.shared.scheduleTaskReminder(for: self)
+    }
+    
+    func cancelReminder() {
+        NotificationManager.shared.cancelTaskReminder(for: self)
+    }
 }
 
-enum UrgencyLevel {
+// MARK: - Notifications
+extension Notification.Name {
+    static let cloudKitSyncCompleted = Notification.Name("tasksnap.cloudkit.sync.completed")
+    static let cloudKitSyncFailed = Notification.Name("tasksnap.cloudkit.sync.failed")
+    static let resetToDashboard = Notification.Name("tasksnap.resetToDashboard")
+}
+
+enum UrgencyLevel: Sendable {
     case none, low, medium, high
     
     var color: String {
@@ -141,6 +163,7 @@ enum UrgencyLevel {
 }
 
 // MARK: - Image Storage
+@MainActor
 class ImageStorage {
     static let shared = ImageStorage()
     

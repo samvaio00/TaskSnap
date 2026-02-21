@@ -50,7 +50,8 @@ struct StreakView: View {
                 Image(systemName: gamificationViewModel.plantSystemImage)
                     .font(.system(size: 100))
                     .foregroundColor(Color(gamificationViewModel.plantColor))
-                    .symbolEffect(.bounce, options: .repeating)
+                    .symbolRenderingMode(.hierarchical)
+                    .accessibilityLabel("Plant at stage \(gamificationViewModel.streakManager.plantGrowthStage)")
                 
                 // Sparkles for higher streaks
                 if gamificationViewModel.streakManager.plantGrowthStage >= 7 {

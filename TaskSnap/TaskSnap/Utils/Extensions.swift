@@ -1,11 +1,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Notification Names
-extension Notification.Name {
-    static let achievementUnlocked = Notification.Name("achievementUnlocked")
-}
-
 // MARK: - Date Extensions
 extension Date {
     func formattedString(style: DateFormatter.Style = .medium) -> String {

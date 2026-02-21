@@ -3,6 +3,7 @@ import CoreData
 import SwiftUI
 import Combine
 
+@MainActor
 class TaskViewModel: ObservableObject {
     @Published var tasks: [TaskEntity] = []
     @Published var todoTasks: [TaskEntity] = []
@@ -53,6 +54,9 @@ class TaskViewModel: ObservableObject {
         saveContext()
         fetchTasks()
         
+        // Schedule reminder if due date is set
+        task.scheduleReminder()
+        
         // Provide haptic feedback
         Haptics.shared.success()
         
@@ -60,7 +64,8 @@ class TaskViewModel: ObservableObject {
     }
     
     func updateTaskStatus(_ task: TaskEntity, to status: TaskStatus) {
-        task.taskStatus = status
+        // Explicitly set the status to ensure it's saved
+        task.status = status.rawValue
         
         if status == .doing && task.startedAt == nil {
             task.startedAt = Date()
@@ -68,7 +73,13 @@ class TaskViewModel: ObservableObject {
         
         if status == .done && task.completedAt == nil {
             task.completedAt = Date()
+            
+            // Cancel any pending reminders for this task
+            task.cancelReminder()
+            
+            // Update streak and schedule next streak reminder
             StreakManager.shared.recordTaskCompletion()
+            NotificationManager.shared.updateStreakReminder()
             
             // Check for achievements
             AchievementManager.shared.checkAchievements(
@@ -78,23 +89,41 @@ class TaskViewModel: ObservableObject {
             )
         }
         
+        // Force save to ensure CloudKit syncs the change
         saveContext()
+        
+        // Trigger CloudKit sync if enabled
+        if SyncManager.shared.isSyncEnabled {
+            try? viewContext.save()
+        }
+        
         fetchTasks()
     }
     
     func completeTask(_ task: TaskEntity, afterImage: UIImage?) {
-        task.taskStatus = .done
+        // Explicitly set status to done to ensure CloudKit sync
+        task.status = TaskStatus.done.rawValue
         task.completedAt = Date()
         
         if let image = afterImage {
             task.afterImagePath = ImageStorage.shared.saveImage(image)
         }
         
+        // Cancel any pending reminders for this task
+        task.cancelReminder()
+        
         saveContext()
+        
+        // Trigger CloudKit sync if enabled
+        if SyncManager.shared.isSyncEnabled {
+            try? viewContext.save()
+        }
+        
         fetchTasks()
         
-        // Update streak and achievements
+        // Update streak, schedule next streak reminder, and check achievements
         StreakManager.shared.recordTaskCompletion()
+        NotificationManager.shared.updateStreakReminder()
         AchievementManager.shared.checkAchievements(
             streak: StreakManager.shared.currentStreak,
             tasksCompleted: doneTasks.count,
@@ -103,6 +132,8 @@ class TaskViewModel: ObservableObject {
     }
     
     func updateTask(_ task: TaskEntity, title: String? = nil, description: String? = nil, dueDate: Date? = nil, isUrgent: Bool? = nil) {
+        let hadDueDate = task.dueDate != nil
+        
         if let title = title {
             task.title = title
         }
@@ -118,9 +149,17 @@ class TaskViewModel: ObservableObject {
         
         saveContext()
         fetchTasks()
+        
+        // Reschedule reminder if due date changed or was added
+        if dueDate != nil || hadDueDate {
+            task.scheduleReminder()
+        }
     }
     
     func deleteTask(_ task: TaskEntity) {
+        // Cancel any pending reminders
+        task.cancelReminder()
+        
         // Delete associated images
         if let beforePath = task.beforeImagePath {
             ImageStorage.shared.deleteImage(filename: beforePath)

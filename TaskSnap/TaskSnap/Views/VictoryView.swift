@@ -45,7 +45,7 @@ struct VictoryView: View {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 80))
                                 .foregroundColor(Color("doneColor"))
-                                .symbolEffect(.bounce, options: .repeating)
+                                .symbolRenderingMode(.hierarchical)
                         }
                         
                         Text("Task Complete!")
@@ -133,6 +133,9 @@ struct VictoryView: View {
             }
         }
         .onAppear {
+            // Play appropriate completion animation
+            playCompletionAnimation()
+            
             // Trigger animations
             withAnimation(.easeOut(duration: 0.5)) {
                 scale = 1.0
@@ -147,13 +150,27 @@ struct VictoryView: View {
             // Check for new achievements
             AchievementManager.shared.checkAchievements(
                 streak: StreakManager.shared.currentStreak,
-                tasksCompleted: 1, // This will be updated by the task view model
+                tasksCompleted: 1,
                 tasks: []
             )
         }
         .overlay(
             AchievementToastContainer()
         )
+    }
+    
+    private func playCompletionAnimation() {
+        // Determine which animation to play based on task category
+        let animation: TaskSnapAnimation
+        let category = task.taskCategory
+        
+        if category == .clean {
+            animation = .organizeTaskComplete
+        } else {
+            animation = .taskComplete
+        }
+        
+        AnimationManager.shared.play(animation)
     }
     
     // MARK: - Before & After Section

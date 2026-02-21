@@ -6,6 +6,7 @@ struct CaptureView: View {
     @Binding var isPresented: Bool
     
     @StateObject private var captureViewModel = CaptureViewModel()
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
     @State private var showPhotoLibrary = false
     @State private var showCameraPicker = false
     @State private var showCameraView = false
@@ -56,9 +57,11 @@ struct CaptureView: View {
                     isPresented: $showCameraView
                 )
             }
-            .onChange(of: captureViewModel.capturedImage) { newImage in
+            .onChange(of: captureViewModel.capturedImage) { _, newImage in
                 if newImage != nil {
                     captureViewModel.analyzeImage(newImage!)
+                    // Play capture success animation
+                    AnimationManager.shared.play(.captureSuccess)
                 }
             }
             .alert("Task Limit Reached", isPresented: $showLimitAlert) {
@@ -89,11 +92,13 @@ struct CaptureView: View {
                 Text("Capture Your Chaos")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .accessibleText()
                 
                 Text("Take a photo of something that needs your attention")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                    .accessibleText()
                     .padding(.horizontal)
             }
             
@@ -108,6 +113,7 @@ struct CaptureView: View {
                     HStack {
                         Image(systemName: "camera.fill")
                             .font(.title3)
+                            .accessibilityHidden(true)
                         Text("Take Photo")
                             .font(.headline)
                     }
@@ -117,6 +123,8 @@ struct CaptureView: View {
                     .background(Color.accentColor)
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Take Photo")
+                .accessibilityHint("Opens camera to capture a new task photo")
                 
                 Button {
                     showPhotoLibrary = true
@@ -125,6 +133,7 @@ struct CaptureView: View {
                     HStack {
                         Image(systemName: "photo.on.rectangle")
                             .font(.title3)
+                            .accessibilityHidden(true)
                         Text("Choose from Library")
                             .font(.headline)
                     }
@@ -134,6 +143,8 @@ struct CaptureView: View {
                     .background(Color.accentColor.opacity(0.1))
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Choose from Photo Library")
+                .accessibilityHint("Opens photo library to select an existing image")
             }
             .padding(.horizontal)
             
@@ -153,6 +164,7 @@ struct CaptureView: View {
                             .scaledToFit()
                             .frame(maxHeight: 250)
                             .cornerRadius(16)
+                            .accessibilityLabel("Captured task photo")
                         
                         Button {
                             captureViewModel.capturedImage = nil
@@ -165,6 +177,8 @@ struct CaptureView: View {
                                 .clipShape(Circle())
                         }
                         .padding(8)
+                        .accessibilityLabel("Remove photo")
+                        .accessibilityHint("Clears the captured photo")
                     }
                 }
                 
@@ -173,6 +187,7 @@ struct CaptureView: View {
                     HStack {
                         ProgressView()
                             .scaleEffect(0.8)
+                            .accessibilityLabel("Analyzing")
                         Text("Analyzing image...")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -180,48 +195,66 @@ struct CaptureView: View {
                     .padding()
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(8)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Analyzing image")
+                    .accessibilityValue("Please wait while we analyze your photo")
+                }
+                
+                // Clutter Analysis Button
+                if let image = captureViewModel.capturedImage {
+                    ClutterScoreButton(image: image)
                 }
                 
                 // Task Title
                 VStack(alignment: .leading, spacing: 8) {
                     Text("What needs to be done?")
                         .font(.headline)
+                        .accessibleText()
                     
                     TextField("Task title", text: $captureViewModel.taskTitle)
                         .font(.body)
                         .padding()
-                        .background(Color(.secondarySystemBackground))
+                        .background(HighContrastColors.secondaryBackground)
                         .cornerRadius(12)
+                        .highContrastBorder(cornerRadius: 12, lineWidth: 1)
+                        .accessibilityLabel("Task title")
+                        .accessibilityHint("Enter a descriptive name for this task")
+                }
+                
+                // Smart Category Suggestions
+                if let image = captureViewModel.capturedImage {
+                    SmartCategorySuggestionView(image: image) { category in
+                        captureViewModel.selectedCategory = category
+                        Haptics.shared.selectionChanged()
+                    }
                 }
                 
                 // Category Selection
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Category")
                         .font(.headline)
+                        .accessibleText()
+                        .accessibilityAddTraits(.isHeader)
                     
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 12) {
-                        ForEach(TaskCategory.allCases, id: \.self) { category in
-                            CategoryButton(
-                                category: category,
-                                isSelected: captureViewModel.selectedCategory == category
-                            ) {
-                                captureViewModel.selectedCategory = category
-                                Haptics.shared.selectionChanged()
-                            }
-                        }
-                    }
+                    CategoryGridView(
+                        selectedCategory: $captureViewModel.selectedCategory
+                    )
+                    .accessibilityLabel("Category picker")
+                    .accessibilityValue("Selected: \(captureViewModel.selectedCategory.displayName)")
                 }
                 
                 // Optional Details
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Details (Optional)")
                         .font(.headline)
+                        .accessibleText()
                     
                     // Due Date Toggle
                     Toggle("Set due date", isOn: $captureViewModel.showDatePicker)
                         .padding()
-                        .background(Color(.secondarySystemBackground))
+                        .background(HighContrastColors.secondaryBackground)
                         .cornerRadius(12)
+                        .accessibleTouchTarget()
                     
                     if captureViewModel.showDatePicker {
                         DatePicker(
@@ -234,22 +267,25 @@ struct CaptureView: View {
                         )
                         .datePickerStyle(.graphical)
                         .padding()
-                        .background(Color(.tertiarySystemBackground))
+                        .background(HighContrastColors.tertiaryBackground)
                         .cornerRadius(12)
+                        .highContrastBorder(cornerRadius: 12, lineWidth: 1)
                     }
                     
                     // Urgent Toggle
                     Toggle("Mark as urgent", isOn: $captureViewModel.isUrgent)
                         .padding()
-                        .background(Color(.secondarySystemBackground))
+                        .background(HighContrastColors.secondaryBackground)
                         .cornerRadius(12)
+                        .accessibleTouchTarget()
                     
                     // Description
                     TextField("Add description (optional)", text: $captureViewModel.taskDescription, axis: .vertical)
                         .lineLimit(3...6)
                         .padding()
-                        .background(Color(.secondarySystemBackground))
+                        .background(HighContrastColors.secondaryBackground)
                         .cornerRadius(12)
+                        .highContrastBorder(cornerRadius: 12, lineWidth: 1)
                 }
                 
                 // Task Limit Warning (if applicable)
@@ -257,6 +293,7 @@ struct CaptureView: View {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.orange)
+                            .accessibilityHidden(true)
                         Text("Task limit reached (\(TaskLimitManager.shared.freeTierLimit) tasks). Complete tasks to add more.")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -264,10 +301,14 @@ struct CaptureView: View {
                     .padding()
                     .background(Color.orange.opacity(0.1))
                     .cornerRadius(12)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Task limit reached")
+                    .accessibilityValue("\(TaskLimitManager.shared.freeTierLimit) tasks maximum. Complete tasks to add more.")
                 } else if remainingTasks <= 3 {
                     HStack {
                         Image(systemName: "info.circle.fill")
                             .foregroundColor(.accentColor)
+                            .accessibilityHidden(true)
                         Text("\(remainingTasks) task slots remaining on free tier")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -275,6 +316,9 @@ struct CaptureView: View {
                     .padding()
                     .background(Color.accentColor.opacity(0.1))
                     .cornerRadius(12)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Task slots remaining")
+                    .accessibilityValue("\(remainingTasks) out of \(TaskLimitManager.shared.freeTierLimit)")
                 }
                 
                 // Create Button
@@ -287,17 +331,23 @@ struct CaptureView: View {
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
+                            .accessibilityHidden(true)
                         Text("Create Task")
+                            .accessibleText(lineLimit: 1)
                     }
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(canCreateTask ? Color.accentColor : Color.gray)
+                    .background(canCreateTask ? HighContrastColors.accent : Color.gray)
                     .cornerRadius(16)
+                    .highContrastButton(isPrimary: true)
                 }
                 .disabled(captureViewModel.capturedImage == nil || !canCreateTask)
                 .opacity(captureViewModel.capturedImage == nil || !canCreateTask ? 0.6 : 1)
+                .accessibleTouchTarget()
+                .accessibilityLabel("Create Task")
+                .accessibilityHint(canCreateTask ? "Saves the new task to your dashboard" : "Cannot create task. Limit reached or no photo captured.")
             }
             .padding()
         }
@@ -317,13 +367,17 @@ struct CategoryButton: View {
     let isSelected: Bool
     let action: () -> Void
     
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Image(systemName: category.icon)
                     .font(.title2)
+                    .accessibilityHidden(true)
                 Text(category.displayName)
                     .font(.caption)
+                    .accessibleText(lineLimit: 1)
             }
             .foregroundColor(isSelected ? .white : Color(category.color))
             .frame(maxWidth: .infinity)
@@ -332,10 +386,18 @@ struct CategoryButton: View {
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color(category.color) : Color.clear, lineWidth: 2)
+                    .stroke(
+                        isSelected ? Color(category.color) : (accessibilitySettings.highContrast ? Color(category.color).opacity(0.5) : Color.clear),
+                        lineWidth: accessibilitySettings.highContrast ? 2 : 2
+                    )
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibleTouchTarget()
+        .accessibilityLabel("\(category.displayName) category")
+        .accessibilityHint("Select this category for the task")
+        .accessibilityValue(isSelected ? "Selected" : "Not selected")
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 }
 
@@ -422,6 +484,34 @@ struct CameraImagePicker: UIViewControllerRepresentable {
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             parent.isPresented = false
         }
+    }
+}
+
+// MARK: - Category Grid View
+struct CategoryGridView: View {
+    @Binding var selectedCategory: TaskCategory
+    @Environment(\.sizeCategory) var sizeCategory
+    @EnvironmentObject var accessibilitySettings: AccessibilitySettings
+    
+    var body: some View {
+        LazyVGrid(
+            columns: [GridItem(.adaptive(minimum: adaptiveMinimumWidth))],
+            spacing: 12
+        ) {
+            ForEach(TaskCategory.allCases, id: \.self) { category in
+                CategoryButton(
+                    category: category,
+                    isSelected: selectedCategory == category
+                ) {
+                    selectedCategory = category
+                    Haptics.shared.selectionChanged()
+                }
+            }
+        }
+    }
+    
+    private var adaptiveMinimumWidth: CGFloat {
+        accessibilitySettings.isAccessibilitySize(sizeCategory) ? 100 : 80
     }
 }
 

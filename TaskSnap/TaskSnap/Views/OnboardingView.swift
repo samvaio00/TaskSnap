@@ -6,6 +6,7 @@ struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var currentPage = 0
     @State private var showPermissionRequest = false
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
     
     let totalPages = 5
     
@@ -46,24 +47,28 @@ struct OnboardingView: View {
                         .tag(4)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .animation(.easeInOut, value: currentPage)
+                .animation(accessibilitySettings.pageTransitionAnimation, value: currentPage)
                 
                 // Page indicators
                 HStack(spacing: 8) {
                     ForEach(0..<totalPages, id: \.self) { index in
                         Circle()
-                            .fill(currentPage == index ? Color.accentColor : Color.gray.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .scaleEffect(currentPage == index ? 1.2 : 1.0)
-                            .animation(.easeInOut, value: currentPage)
+                            .fill(currentPage == index ? HighContrastColors.accent : HighContrastColors.secondaryText.opacity(0.3))
+                            .frame(width: currentPage == index ? 10 : 8, height: currentPage == index ? 10 : 8)
+                            .scaleEffect(currentPage == index ? (accessibilitySettings.shouldShowCelebrations ? 1.2 : 1.0) : 1.0)
+                            .animation(accessibilitySettings.pageTransitionAnimation, value: currentPage)
+                            .highContrastBorder(cornerRadius: currentPage == index ? 5 : 4, lineWidth: accessibilitySettings.highContrast && currentPage == index ? 1 : 0)
                     }
                 }
                 .padding(.vertical, 20)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Page indicator")
+                .accessibilityValue("Page \(currentPage + 1) of \(totalPages)")
                 
                 // Next/Get Started button
                 Button {
                     if currentPage < totalPages - 1 {
-                        withAnimation {
+                        withAnimation(accessibilitySettings.pageTransitionAnimation) {
                             currentPage += 1
                         }
                     } else {
@@ -73,14 +78,17 @@ struct OnboardingView: View {
                     HStack {
                         Text(currentPage < totalPages - 1 ? "Next" : "Get Started")
                             .font(.headline)
+                            .accessibleText(lineLimit: 1)
                         Image(systemName: currentPage < totalPages - 1 ? "arrow.right" : "checkmark")
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.accentColor)
+                    .background(HighContrastColors.accent)
                     .cornerRadius(16)
+                    .highContrastButton(isPrimary: true)
                 }
+                .accessibleTouchTarget()
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
             }
@@ -108,10 +116,8 @@ struct OnboardingView: View {
     }
     
     private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
-            DispatchQueue.main.async {
-                completeOnboarding()
-            }
+        NotificationManager.shared.requestAuthorization { granted in
+            completeOnboarding()
         }
     }
     
@@ -122,293 +128,315 @@ struct OnboardingView: View {
 
 // MARK: - Welcome Page
 struct WelcomePage: View {
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            
-            // App Icon Placeholder
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.accentColor, .accentColor.opacity(0.7)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+        ScrollView {
+            VStack(spacing: 40) {
+                Spacer()
+                
+                // App Icon Placeholder
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient.highContrast(
+                                colors: [.accentColor, .accentColor.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 150, height: 150)
+                        .frame(width: 150, height: 150)
+                    
+                    Image(systemName: "camera.viewfinder")
+                        .font(.system(size: 70))
+                        .foregroundColor(.white)
+                }
                 
-                Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 70))
-                    .foregroundColor(.white)
-            }
-            
-            VStack(spacing: 16) {
-                Text("Welcome to TaskSnap")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 16) {
+                    Text("Welcome to TaskSnap")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .accessibleText()
+                    
+                    Text("Capture Your Chaos. See Your Success.")
+                        .font(.title3)
+                        .foregroundColor(HighContrastColors.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .accessibleText()
+                        .padding(.horizontal)
+                }
                 
-                Text("Capture Your Chaos. See Your Success.")
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Designed for ADHD brains", systemImage: "brain.head.profile")
+                        .accessibleLabel(icon: "brain.head.profile", label: "Designed for ADHD brains")
+                    Label("Visual task management", systemImage: "eye.fill")
+                        .accessibleLabel(icon: "eye.fill", label: "Visual task management")
+                    Label("Build lasting habits", systemImage: "flame.fill")
+                        .accessibleLabel(icon: "flame.fill", label: "Build lasting habits")
+                }
+                .font(.subheadline)
+                .foregroundColor(HighContrastColors.secondaryText)
+                .padding(.top, 20)
+                
+                Spacer()
             }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Label("Designed for ADHD brains", systemImage: "brain.head.profile")
-                Label("Visual task management", systemImage: "eye.fill")
-                Label("Build lasting habits", systemImage: "flame.fill")
-            }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .padding(.top, 20)
-            
-            Spacer()
+            .padding(.horizontal, 32)
         }
-        .padding(.horizontal, 32)
     }
 }
 
 // MARK: - Capture Page
 struct CapturePage: View {
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(Color.accentColor.opacity(0.2))
-                    .frame(width: 200, height: 200)
+        ScrollView {
+            VStack(spacing: 40) {
+                Spacer()
                 
-                Image(systemName: "camera.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.accentColor)
-            }
-            
-            VStack(spacing: 16) {
-                Text("1. Capture")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(.accentColor)
-                
-                Text("Snap a photo of anything that needs your attention")
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accentColor)
-                    Text("Messy desk? Capture it.")
+                ZStack {
+                    Circle()
+                        .fill(HighContrastColors.accent.opacity(accessibilitySettings.highContrast ? 0.3 : 0.2))
+                        .frame(width: 200, height: 200)
+                    
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(HighContrastColors.accent)
                 }
                 
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accentColor)
-                    Text("Broken item? Snap it.")
+                VStack(spacing: 16) {
+                    Text("1. Capture")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundColor(HighContrastColors.accent)
+                        .accessibleText()
+                    
+                    Text("Snap a photo of anything that needs your attention")
+                        .font(.title3)
+                        .foregroundColor(HighContrastColors.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .accessibleText()
+                        .padding(.horizontal)
                 }
                 
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accentColor)
-                    Text("Grocery list? Photograph it.")
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("Messy desk? Capture it.", systemImage: "checkmark.circle.fill")
+                        .foregroundColor(HighContrastColors.accent)
+                        .accessibleLabel(icon: "checkmark.circle.fill", label: "Messy desk? Capture it.")
+                    
+                    Label("Broken item? Snap it.", systemImage: "checkmark.circle.fill")
+                        .foregroundColor(HighContrastColors.accent)
+                        .accessibleLabel(icon: "checkmark.circle.fill", label: "Broken item? Snap it.")
+                    
+                    Label("Grocery list? Photograph it.", systemImage: "checkmark.circle.fill")
+                        .foregroundColor(HighContrastColors.accent)
+                        .accessibleLabel(icon: "checkmark.circle.fill", label: "Grocery list? Photograph it.")
                 }
+                .font(.subheadline)
+                .foregroundColor(HighContrastColors.secondaryText)
+                .padding(.top, 20)
+                
+                Spacer()
             }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .padding(.top, 20)
-            
-            Spacer()
+            .padding(.horizontal, 32)
         }
-        .padding(.horizontal, 32)
     }
 }
 
 // MARK: - Clarify Page
 struct ClarifyPage: View {
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(Color.orange.opacity(0.2))
-                    .frame(width: 200, height: 200)
+        ScrollView {
+            VStack(spacing: 40) {
+                Spacer()
                 
-                Image(systemName: "wand.and.stars")
-                    .font(.system(size: 80))
-                    .foregroundColor(.orange)
-            }
-            
-            VStack(spacing: 16) {
-                Text("2. Clarify")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(.orange)
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(accessibilitySettings.highContrast ? 0.3 : 0.2))
+                        .frame(width: 200, height: 200)
+                    
+                    Image(systemName: "wand.and.stars")
+                        .font(.system(size: 80))
+                        .foregroundColor(accessibilitySettings.highContrast ? HighContrastColors.warning : .orange)
+                }
                 
-                Text("AI suggests a title, or pick a quick category")
-                    .font(.title3)
-                    .foregroundColor(.secondary)
+                VStack(spacing: 16) {
+                    Text("2. Clarify")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundColor(accessibilitySettings.highContrast ? HighContrastColors.warning : .orange)
+                        .accessibleText()
+                    
+                    Text("AI suggests a title, or pick a quick category")
+                        .font(.title3)
+                        .foregroundColor(HighContrastColors.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .accessibleText()
+                        .padding(.horizontal)
+                }
+                
+                HStack(spacing: 12) {
+                    CategoryBadge(icon: "sparkles", label: "Clean", color: .blue)
+                    CategoryBadge(icon: "wrench.fill", label: "Fix", color: .orange)
+                    CategoryBadge(icon: "cart.fill", label: "Buy", color: .green)
+                }
+                .padding(.top, 20)
+                
+                Text("Reduce decision fatigue with one-tap categorization")
+                    .font(.caption)
+                    .foregroundColor(HighContrastColors.secondaryText)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                    .accessibleText()
+                    .padding(.top, 8)
+                
+                Spacer()
             }
-            
-            HStack(spacing: 12) {
-                CategoryBadge(icon: "sparkles", label: "Clean", color: .blue)
-                CategoryBadge(icon: "wrench.fill", label: "Fix", color: .orange)
-                CategoryBadge(icon: "cart.fill", label: "Buy", color: .green)
-            }
-            .padding(.top, 20)
-            
-            Text("Reduce decision fatigue with one-tap categorization")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 8)
-            
-            Spacer()
+            .padding(.horizontal, 32)
         }
-        .padding(.horizontal, 32)
     }
 }
 
 // MARK: - Complete Page
 struct CompletePage: View {
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(Color("doneColor").opacity(0.2))
-                    .frame(width: 200, height: 200)
+        ScrollView {
+            VStack(spacing: 40) {
+                Spacer()
                 
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(Color("doneColor"))
-            }
-            
-            VStack(spacing: 16) {
-                Text("3. Complete")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(Color("doneColor"))
-                
-                Text("Take an after photo and celebrate your win!")
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Image(systemName: "photo.stack.fill")
-                        .foregroundColor(Color("doneColor"))
-                    Text("See before & after comparison")
+                ZStack {
+                    Circle()
+                        .fill(Color("doneColor").opacity(accessibilitySettings.highContrast ? 0.3 : 0.2))
+                        .frame(width: 200, height: 200)
+                    
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(HighContrastColors.success)
                 }
                 
-                HStack {
-                    Image(systemName: "sparkles")
-                        .foregroundColor(Color("doneColor"))
-                    Text("Enjoy celebration animations")
+                VStack(spacing: 16) {
+                    Text("3. Complete")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundColor(HighContrastColors.success)
+                        .accessibleText()
+                    
+                    Text("Take an after photo and celebrate your win!")
+                        .font(.title3)
+                        .foregroundColor(HighContrastColors.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .accessibleText()
+                        .padding(.horizontal)
                 }
                 
-                HStack {
-                    Image(systemName: "flame.fill")
-                        .foregroundColor(Color("doneColor"))
-                    Text("Build your daily streak")
+                VStack(alignment: .leading, spacing: 16) {
+                    Label("See before & after comparison", systemImage: "photo.stack.fill")
+                        .foregroundColor(HighContrastColors.success)
+                        .accessibleLabel(icon: "photo.stack.fill", label: "See before & after comparison")
+                    
+                    Label("Enjoy celebration animations", systemImage: "sparkles")
+                        .foregroundColor(HighContrastColors.success)
+                        .accessibleLabel(icon: "sparkles", label: "Enjoy celebration animations")
+                    
+                    Label("Build your daily streak", systemImage: "flame.fill")
+                        .foregroundColor(HighContrastColors.success)
+                        .accessibleLabel(icon: "flame.fill", label: "Build your daily streak")
                 }
+                .font(.subheadline)
+                .foregroundColor(HighContrastColors.secondaryText)
+                .padding(.top, 20)
+                
+                Spacer()
             }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .padding(.top, 20)
-            
-            Spacer()
+            .padding(.horizontal, 32)
         }
-        .padding(.horizontal, 32)
     }
 }
 
 // MARK: - Permissions Page
 struct PermissionsPage: View {
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(Color.purple.opacity(0.2))
-                    .frame(width: 200, height: 200)
+        ScrollView {
+            VStack(spacing: 40) {
+                Spacer()
                 
-                Image(systemName: "hand.raised.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.purple)
-            }
-            
-            VStack(spacing: 16) {
-                Text("One More Thing")
-                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                
-                Text("TaskSnap needs a couple permissions to work best")
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            
-            VStack(alignment: .leading, spacing: 20) {
-                HStack(spacing: 16) {
-                    Image(systemName: "camera.fill")
-                        .font(.title2)
-                        .foregroundColor(.accentColor)
-                        .frame(width: 40)
+                ZStack {
+                    Circle()
+                        .fill(Color.purple.opacity(accessibilitySettings.highContrast ? 0.3 : 0.2))
+                        .frame(width: 200, height: 200)
                     
-                    VStack(alignment: .leading) {
-                        Text("Camera")
-                            .font(.headline)
-                        Text("To capture task photos")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    Image(systemName: "hand.raised.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(accessibilitySettings.highContrast ? HighContrastColors.info : .purple)
                 }
                 
-                HStack(spacing: 16) {
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.title2)
-                        .foregroundColor(.accentColor)
-                        .frame(width: 40)
+                VStack(spacing: 16) {
+                    Text("One More Thing")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .accessibleText()
                     
-                    VStack(alignment: .leading) {
-                        Text("Photo Library")
-                            .font(.headline)
-                        Text("To save and view task photos")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    Text("TaskSnap needs a couple permissions to work best")
+                        .font(.title3)
+                        .foregroundColor(HighContrastColors.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .accessibleText()
+                        .padding(.horizontal)
                 }
                 
-                HStack(spacing: 16) {
-                    Image(systemName: "bell.fill")
-                        .font(.title2)
-                        .foregroundColor(.accentColor)
-                        .frame(width: 40)
+                VStack(alignment: .leading, spacing: 20) {
+                    PermissionRow(
+                        icon: "camera.fill",
+                        title: "Camera",
+                        description: "To capture task photos"
+                    )
                     
-                    VStack(alignment: .leading) {
-                        Text("Notifications (Optional)")
-                            .font(.headline)
-                        Text("Reminders for overdue tasks")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    PermissionRow(
+                        icon: "photo.on.rectangle",
+                        title: "Photo Library",
+                        description: "To save and view task photos"
+                    )
+                    
+                    PermissionRow(
+                        icon: "bell.fill",
+                        title: "Notifications (Optional)",
+                        description: "Reminders for overdue tasks"
+                    )
                 }
+                .padding(.top, 20)
+                
+                Spacer()
             }
-            .padding(.top, 20)
-            
-            Spacer()
+            .padding(.horizontal, 32)
         }
-        .padding(.horizontal, 32)
+    }
+}
+
+// MARK: - Permission Row
+struct PermissionRow: View {
+    let icon: String
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(HighContrastColors.accent)
+                .frame(width: 40)
+                .accessibilityHidden(true)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .accessibleText(lineLimit: 1)
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(HighContrastColors.secondaryText)
+                    .accessibleText(lineLimit: 2)
+            }
+        }
     }
 }
 
@@ -418,19 +446,24 @@ struct CategoryBadge: View {
     let label: String
     let color: Color
     
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(color)
+                .foregroundColor(accessibilitySettings.highContrast ? color.opacity(1.0) : color)
+                .accessibilityHidden(true)
             
             Text(label)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(HighContrastColors.secondaryText)
+                .accessibleText(lineLimit: 1)
         }
         .frame(width: 80, height: 80)
-        .background(color.opacity(0.1))
+        .background(color.opacity(accessibilitySettings.highContrast ? 0.2 : 0.1))
         .cornerRadius(12)
+        .highContrastBorder(cornerRadius: 12, lineWidth: accessibilitySettings.highContrast ? 1 : 0, color: color.opacity(0.5))
     }
 }
 

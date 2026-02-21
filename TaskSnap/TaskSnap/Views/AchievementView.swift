@@ -3,38 +3,29 @@ import SwiftUI
 struct AchievementView: View {
     @StateObject private var achievementManager = AchievementManager.shared
     @State private var selectedAchievement: Achievement?
+    @State private var selectedCategory: AchievementCategory?
     @State private var showingDetail = false
-    
-    private var unlockedAchievements: [Achievement] {
-        achievementManager.achievements.filter(\.isUnlocked)
-    }
-    
-    private var lockedAchievements: [Achievement] {
-        achievementManager.achievements.filter { !$0.isUnlocked }
-    }
     
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
                     // Progress Header
                     progressHeader
                     
-                    // Unlocked Achievements
-                    if !unlockedAchievements.isEmpty {
-                        achievementsSection(
-                            title: "Unlocked",
-                            achievements: unlockedAchievements,
-                            showProgress: false
-                        )
-                    }
+                    // Category Filter
+                    categoryFilter
                     
-                    // Locked Achievements
-                    achievementsSection(
-                        title: "In Progress",
-                        achievements: lockedAchievements,
-                        showProgress: true
-                    )
+                    // Achievement Sections by Category
+                    if let selected = selectedCategory {
+                        // Show only selected category
+                        categorySection(category: selected)
+                    } else {
+                        // Show all categories
+                        ForEach(AchievementCategory.allCases, id: \.self) { category in
+                            categorySection(category: category)
+                        }
+                    }
                 }
                 .padding(.vertical)
             }
@@ -48,12 +39,12 @@ struct AchievementView: View {
     
     // MARK: - Progress Header
     private var progressHeader: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             // Progress Ring
             ZStack {
                 Circle()
-                    .stroke(Color(.tertiarySystemBackground), lineWidth: 20)
-                    .frame(width: 150, height: 150)
+                    .stroke(Color(.tertiarySystemBackground), lineWidth: 16)
+                    .frame(width: 120, height: 120)
                 
                 Circle()
                     .trim(from: 0, to: progressPercentage)
@@ -62,16 +53,16 @@ struct AchievementView: View {
                             colors: [Color("achievementBronze"), Color("achievementSilver"), Color("achievementGold"), Color("achievementBronze")],
                             center: .center
                         ),
-                        style: StrokeStyle(lineWidth: 20, lineCap: .round)
+                        style: StrokeStyle(lineWidth: 16, lineCap: .round)
                     )
-                    .frame(width: 150, height: 150)
+                    .frame(width: 120, height: 120)
                     .rotationEffect(.degrees(-90))
                     .animation(.easeInOut(duration: 1), value: progressPercentage)
                 
-                VStack {
+                VStack(spacing: 2) {
                     Text("\(achievementManager.unlockedCount)")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                    Text("of \(achievementManager.totalCount)")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                    Text("/ \(achievementManager.totalCount)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -92,14 +83,60 @@ struct AchievementView: View {
         Double(achievementManager.unlockedCount) / Double(achievementManager.totalCount)
     }
     
-    // MARK: - Achievements Section
-    private func achievementsSection(title: String, achievements: [Achievement], showProgress: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+    // MARK: - Category Filter
+    private var categoryFilter: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                // All button
+                CategoryFilterButton(
+                    title: "All",
+                    icon: "square.grid.2x2",
+                    count: achievementManager.unlockedCount,
+                    isSelected: selectedCategory == nil
+                ) {
+                    withAnimation {
+                        selectedCategory = nil
+                    }
+                }
+                
+                // Category buttons
+                ForEach(AchievementCategory.allCases, id: \.self) { category in
+                    let count = achievementManager.unlockedByCategory[category] ?? 0
+                    let total = achievementManager.achievements(for: category).count
+                    
+                    CategoryFilterButton(
+                        title: category.rawValue,
+                        icon: category.icon,
+                        count: count,
+                        total: total,
+                        isSelected: selectedCategory == category
+                    ) {
+                        withAnimation {
+                            selectedCategory = category
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    // MARK: - Category Section
+    private func categorySection(category: AchievementCategory) -> some View {
+        let achievements = achievementManager.achievements(for: category)
+        let unlockedCount = achievements.filter(\.isUnlocked).count
+        
+        return VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(title)
+                Image(systemName: category.icon)
+                    .foregroundColor(.accentColor)
+                
+                Text(category.rawValue)
                     .font(.headline)
+                
                 Spacer()
-                Text("\(achievements.count)")
+                
+                Text("\(unlockedCount)/\(achievements.count)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 8)
@@ -109,9 +146,9 @@ struct AchievementView: View {
             }
             .padding(.horizontal)
             
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 16) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
                 ForEach(achievements) { achievement in
-                    AchievementCard(achievement: achievement, showProgress: showProgress)
+                    AchievementCard(achievement: achievement)
                         .onTapGesture {
                             selectedAchievement = achievement
                         }
@@ -119,26 +156,66 @@ struct AchievementView: View {
             }
             .padding(.horizontal)
         }
+        .padding(.vertical, 8)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(16)
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Category Filter Button
+struct CategoryFilterButton: View {
+    let title: String
+    let icon: String
+    let count: Int
+    var total: Int? = nil
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .semibold : .medium)
+                
+                if let total = total {
+                    Text("\(count)/\(total)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("\(count)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.accentColor : Color(.tertiarySystemBackground))
+            .foregroundColor(isSelected ? .white : .primary)
+            .cornerRadius(20)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
 // MARK: - Achievement Card
 struct AchievementCard: View {
     let achievement: Achievement
-    let showProgress: Bool
     
     var body: some View {
-        VStack(spacing: 12) {
-            // Icon
+        VStack(spacing: 8) {
             ZStack {
                 Circle()
                     .fill(achievement.isUnlocked ? Color(achievement.color).opacity(0.2) : Color(.tertiarySystemBackground))
-                    .frame(width: 70, height: 70)
+                    .frame(width: 60, height: 60)
                 
                 Image(systemName: achievement.icon)
-                    .font(.system(size: 32))
+                    .font(.system(size: 28))
                     .foregroundColor(achievement.isUnlocked ? Color(achievement.color) : .secondary)
-                    .symbolEffect(.bounce, options: achievement.isUnlocked ? .repeating : .nonRepeating)
                 
                 if achievement.isUnlocked {
                     Image(systemName: "checkmark.circle.fill")
@@ -146,44 +223,39 @@ struct AchievementCard: View {
                         .foregroundColor(Color("doneColor"))
                         .background(Color.white)
                         .clipShape(Circle())
-                        .offset(x: 20, y: 20)
+                        .offset(x: 18, y: 18)
+                } else {
+                    Image(systemName: "lock.fill")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .offset(x: 18, y: 18)
                 }
             }
             
-            // Title
             Text(achievement.title)
                 .font(.caption)
                 .fontWeight(.medium)
                 .multilineTextAlignment(.center)
                 .foregroundColor(achievement.isUnlocked ? .primary : .secondary)
                 .lineLimit(2)
+                .frame(height: 36)
             
-            // Progress Bar (for locked achievements)
-            if showProgress {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color(.tertiarySystemBackground))
-                            .frame(height: 4)
-                        
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color(achievement.color))
-                            .frame(width: geometry.size.width * achievement.progress, height: 4)
-                    }
-                }
-                .frame(height: 4)
-                
+            if !achievement.isUnlocked && achievement.progress > 0 {
+                ProgressView(value: achievement.progress)
+                    .progressViewStyle(LinearProgressViewStyle(tint: Color(achievement.color)))
+                    .frame(height: 4)
+                    
                 Text("\(Int(achievement.progress * 100))%")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
         }
-        .padding()
-        .frame(height: showProgress ? 160 : 140)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(16)
+        .padding(8)
+        .frame(height: 140)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 12)
                 .stroke(achievement.isUnlocked ? Color(achievement.color).opacity(0.3) : Color.clear, lineWidth: 2)
         )
         .opacity(achievement.isUnlocked ? 1.0 : 0.7)
@@ -209,7 +281,6 @@ struct AchievementDetailView: View {
                     Image(systemName: achievement.icon)
                         .font(.system(size: 80))
                         .foregroundColor(Color(achievement.color))
-                        .symbolEffect(.bounce, options: .repeating)
                     
                     if achievement.isUnlocked {
                         Image(systemName: "checkmark.circle.fill")
@@ -233,10 +304,22 @@ struct AchievementDetailView: View {
                         .padding(.horizontal)
                 }
                 
+                // Category Badge
+                HStack {
+                    Image(systemName: achievement.category.icon)
+                    Text(achievement.category.rawValue)
+                }
+                .font(.subheadline)
+                .foregroundColor(.accentColor)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.accentColor.opacity(0.1))
+                .cornerRadius(20)
+                
                 // Status
                 if achievement.isUnlocked {
                     VStack(spacing: 8) {
-                        Text("Unlocked!")
+                        Text("Unlocked! 🎉")
                             .font(.headline)
                             .foregroundColor(Color("doneColor"))
                         
@@ -254,18 +337,10 @@ struct AchievementDetailView: View {
                         Text("Progress: \(Int(achievement.progress * 100))%")
                             .font(.headline)
                         
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(.tertiarySystemBackground))
-                                    .frame(height: 8)
-                                
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(achievement.color))
-                                    .frame(width: geometry.size.width * achievement.progress, height: 8)
-                            }
-                        }
-                        .frame(height: 8)
+                        ProgressView(value: achievement.progress)
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color(achievement.color)))
+                            .frame(height: 8)
+                            .padding(.horizontal)
                     }
                     .padding()
                     .background(Color(.secondarySystemBackground))
@@ -299,6 +374,7 @@ struct AchievementDetailView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     AchievementView()
 }

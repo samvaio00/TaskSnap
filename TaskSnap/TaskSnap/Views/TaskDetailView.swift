@@ -39,6 +39,8 @@ struct TaskDetailView: View {
                     Button("Close") {
                         dismiss()
                     }
+                    .accessibilityLabel("Close")
+                    .accessibilityHint("Closes task details and returns to dashboard")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -50,6 +52,8 @@ struct TaskDetailView: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
+                            .accessibilityLabel("More options")
+                            .accessibilityHint("Opens menu with additional task options")
                     }
                 }
             }
@@ -96,7 +100,7 @@ struct TaskDetailView: View {
             } message: {
                 Text("This action cannot be undone.")
             }
-            .onChange(of: afterImage) { newImage in
+            .onChange(of: afterImage) { _, newImage in
                 if newImage != nil {
                     showingCompleteConfirmation = true
                 }
@@ -119,6 +123,9 @@ struct TaskDetailView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Before photo section")
+                .accessibilityAddTraits(.isHeader)
                 
                 if let image = task.beforeImage {
                     Image(uiImage: image)
@@ -126,6 +133,7 @@ struct TaskDetailView: View {
                         .scaledToFit()
                         .cornerRadius(16)
                         .shadow(radius: 4)
+                        .accessibilityLabel("Before photo of task")
                 } else {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Color(task.taskCategory.color).opacity(0.2))
@@ -134,7 +142,9 @@ struct TaskDetailView: View {
                             Image(systemName: task.taskCategory.icon)
                                 .font(.system(size: 60))
                                 .foregroundColor(Color(task.taskCategory.color))
+                                .accessibilityHidden(true)
                         )
+                        .accessibilityLabel("No before photo available, showing \(task.taskCategory.displayName) category icon")
                 }
             }
             
@@ -148,6 +158,9 @@ struct TaskDetailView: View {
                             .foregroundColor(Color("doneColor"))
                         Spacer()
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("After photo section")
+                    .accessibilityAddTraits(.isHeader)
                     
                     if let image = task.afterImage {
                         Image(uiImage: image)
@@ -158,7 +171,9 @@ struct TaskDetailView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
                                     .stroke(Color("doneColor"), lineWidth: 3)
+                                    .accessibilityHidden(true)
                             )
+                            .accessibilityLabel("After photo showing completed task")
                     } else {
                         // No after image - show capture options
                         VStack(spacing: 12) {
@@ -221,10 +236,12 @@ struct TaskDetailView: View {
             Text(task.title ?? "Untitled Task")
                 .font(.title)
                 .fontWeight(.bold)
+                .accessibilityLabel("Task title: \(task.title ?? "Untitled Task")")
             
             // Category Badge
             HStack {
                 Image(systemName: task.taskCategory.icon)
+                    .accessibilityHidden(true)
                 Text(task.taskCategory.displayName)
             }
             .font(.subheadline)
@@ -233,6 +250,8 @@ struct TaskDetailView: View {
             .padding(.vertical, 6)
             .background(Color(task.taskCategory.color).opacity(0.15))
             .cornerRadius(20)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Category: \(task.taskCategory.displayName)")
             
             // Description
             if let description = task.taskDescription, !description.isEmpty {
@@ -240,6 +259,7 @@ struct TaskDetailView: View {
                     .font(.body)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Description: \(description)")
             }
             
             // Urgent Badge
@@ -247,6 +267,7 @@ struct TaskDetailView: View {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(Color("urgencyHigh"))
+                        .accessibilityHidden(true)
                     Text("Urgent")
                         .fontWeight(.semibold)
                 }
@@ -254,6 +275,8 @@ struct TaskDetailView: View {
                 .padding()
                 .background(Color("urgencyHigh").opacity(0.1))
                 .cornerRadius(12)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Urgent task")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -270,6 +293,7 @@ struct TaskDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "play.circle.fill")
+                            .accessibilityHidden(true)
                         Text("Start Task")
                     }
                     .font(.headline)
@@ -279,6 +303,8 @@ struct TaskDetailView: View {
                     .background(Color("doingColor"))
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Start Task")
+                .accessibilityHint("Moves task from To Do to Doing status")
                 
                 Button {
                     Haptics.shared.cameraShutter()
@@ -286,6 +312,7 @@ struct TaskDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
+                            .accessibilityHidden(true)
                         Text("Complete Task")
                     }
                     .font(.headline)
@@ -295,6 +322,8 @@ struct TaskDetailView: View {
                     .background(Color("doneColor"))
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Complete Task")
+                .accessibilityHint("Opens options to add after photo and mark task as completed")
             } else if task.taskStatus == .doing {
                 // Focus Timer Button
                 Button {
@@ -303,6 +332,7 @@ struct TaskDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "timer.circle.fill")
+                            .accessibilityHidden(true)
                         Text("Start Focus Timer")
                     }
                     .font(.headline)
@@ -312,6 +342,8 @@ struct TaskDetailView: View {
                     .background(Color.accentColor)
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Start Focus Timer")
+                .accessibilityHint("Opens focus timer to work on this task without distractions")
                 
                 Button {
                     Haptics.shared.cameraShutter()
@@ -319,6 +351,7 @@ struct TaskDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
+                            .accessibilityHidden(true)
                         Text("Complete Task")
                     }
                     .font(.headline)
@@ -328,6 +361,8 @@ struct TaskDetailView: View {
                     .background(Color("doneColor"))
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Complete Task")
+                .accessibilityHint("Opens options to add after photo and mark task as completed")
                 
                 Button {
                     Haptics.shared.taskMoved()
@@ -336,6 +371,7 @@ struct TaskDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.uturn.backward.circle")
+                            .accessibilityHidden(true)
                         Text("Move Back to To Do")
                     }
                     .font(.headline)
@@ -345,6 +381,8 @@ struct TaskDetailView: View {
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Move Back to To Do")
+                .accessibilityHint("Returns task from Doing back to To Do status")
             } else {
                 // Task is done
                 Button {
@@ -354,6 +392,7 @@ struct TaskDetailView: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.counterclockwise.circle")
+                            .accessibilityHidden(true)
                         Text("Reopen Task")
                     }
                     .font(.headline)
@@ -363,6 +402,8 @@ struct TaskDetailView: View {
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(16)
                 }
+                .accessibilityLabel("Reopen Task")
+                .accessibilityHint("Moves completed task back to To Do status")
             }
         }
     }
@@ -372,25 +413,32 @@ struct TaskDetailView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Details")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             
             VStack(spacing: 12) {
                 // Created Date
                 HStack {
                     Image(systemName: "calendar.badge.plus")
                         .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
                     Text("Created")
                         .foregroundColor(.secondary)
                     Spacer()
                     Text(task.createdAt?.formattedString() ?? "Unknown")
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Created")
+                .accessibilityValue(task.createdAt?.formattedString() ?? "Unknown")
                 
                 Divider()
+                    .accessibilityHidden(true)
                 
                 // Due Date (if set)
                 if let dueDate = task.dueDate {
                     HStack {
                         Image(systemName: "calendar.badge.clock")
                             .foregroundColor(task.isOverdue ? Color("urgencyHigh") : .secondary)
+                            .accessibilityHidden(true)
                         Text("Due")
                             .foregroundColor(.secondary)
                         Spacer()
@@ -408,29 +456,39 @@ struct TaskDetailView: View {
                                 .cornerRadius(8)
                         }
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Due date")
+                    .accessibilityValue(task.isOverdue ? "Overdue, due \(dueDate.formattedString())" : dueDate.formattedString())
                 }
                 
                 // Completed Date (if done)
                 if let completedAt = task.completedAt {
                     Divider()
+                        .accessibilityHidden(true)
                     
                     HStack {
                         Image(systemName: "checkmark.circle")
                             .foregroundColor(Color("doneColor"))
+                            .accessibilityHidden(true)
                         Text("Completed")
                             .foregroundColor(.secondary)
                         Spacer()
                         Text(completedAt.formattedString())
                             .foregroundColor(Color("doneColor"))
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Completed")
+                    .accessibilityValue(completedAt.formattedString())
                 }
                 
                 // Status
                 Divider()
+                    .accessibilityHidden(true)
                 
                 HStack {
                     Image(systemName: "flag.fill")
                         .foregroundColor(Color(task.taskStatus.color))
+                        .accessibilityHidden(true)
                     Text("Status")
                         .foregroundColor(.secondary)
                     Spacer()
@@ -438,6 +496,9 @@ struct TaskDetailView: View {
                         .fontWeight(.medium)
                         .foregroundColor(Color(task.taskStatus.color))
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Status")
+                .accessibilityValue(task.taskStatus.displayName)
             }
             .font(.subheadline)
             .padding()
@@ -450,6 +511,11 @@ struct TaskDetailView: View {
     private func completeTask() {
         Haptics.shared.taskCompleted()
         taskViewModel.completeTask(task, afterImage: afterImage)
+        
+        // Announce completion for VoiceOver
+        let announcement = "Task completed! \(task.title ?? "Task") moved to Done."
+        UIAccessibility.post(notification: .announcement, argument: announcement)
+        
         dismiss()
         onComplete(task)
     }
@@ -457,6 +523,11 @@ struct TaskDetailView: View {
     private func deleteTask() {
         Haptics.shared.error()
         taskViewModel.deleteTask(task)
+        
+        // Announce deletion for VoiceOver
+        let announcement = "Task deleted."
+        UIAccessibility.post(notification: .announcement, argument: announcement)
+        
         dismiss()
     }
 }

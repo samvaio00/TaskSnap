@@ -8,30 +8,78 @@ struct TaskSnapApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showCaptureView = false
+    @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var accessibilitySettings = AccessibilitySettings.shared
+    
+    // MARK: - Launch Screen State
+    @State private var showLaunchScreen = true
+    @State private var launchScreenOpacity = 1.0
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if hasCompletedOnboarding {
-                    ContentView()
-                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                        .sheet(isPresented: $showCaptureView) {
-                            CaptureView(
-                                taskViewModel: TaskViewModel(context: persistenceController.container.viewContext),
-                                isPresented: $showCaptureView
-                            )
+            ZStack {
+                // MARK: - Main App Content
+                mainContent
+                    .opacity(showLaunchScreen ? 0 : 1)
+                    .animation(.easeIn(duration: 0.3), value: showLaunchScreen)
+                
+                // MARK: - Launch Screen Overlay
+                if showLaunchScreen {
+                    LaunchScreen()
+                        .opacity(launchScreenOpacity)
+                        .transition(.opacity)
+                        .onAppear {
+                            dismissLaunchScreen()
                         }
-                        .onOpenURL { url in
-                            handleURL(url)
-                        }
-                } else {
-                    OnboardingView()
-                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 }
             }
         }
     }
     
+    // MARK: - Main Content View
+    @ViewBuilder
+    private var mainContent: some View {
+        Group {
+            if hasCompletedOnboarding {
+                ContentView()
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                    .environmentObject(accessibilitySettings)
+                    .sheet(isPresented: $showCaptureView) {
+                        CaptureView(
+                            taskViewModel: TaskViewModel(context: persistenceController.container.viewContext),
+                            isPresented: $showCaptureView
+                        )
+                    }
+                    .onOpenURL { url in
+                        handleURL(url)
+                    }
+                    .onReceive(NotificationCenter.default.publisher(for: .openCapture)) { _ in
+                        showCaptureView = true
+                    }
+            } else {
+                OnboardingView()
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                    .environmentObject(accessibilitySettings)
+            }
+        }
+    }
+    
+    // MARK: - Launch Screen Dismissal
+    private func dismissLaunchScreen() {
+        // Wait 2.5 seconds then fade out launch screen
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation(.easeOut(duration: 0.5)) {
+                launchScreenOpacity = 0
+            }
+            
+            // Remove from view hierarchy after fade completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                showLaunchScreen = false
+            }
+        }
+    }
+    
+    // MARK: - URL Handling
     private func handleURL(_ url: URL) {
         guard url.scheme == "tasksnap" else { return }
         
@@ -44,6 +92,7 @@ struct TaskSnapApp: App {
     }
 }
 
+@MainActor
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Configure appearance
@@ -51,6 +100,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         // Initialize achievement notification manager
         AchievementNotificationManager.initialize()
+        
+        // Initialize notification manager
+        NotificationManager.shared.checkAuthorizationStatus()
         
         // Update widget data on launch
         WidgetDataManager.shared.updateWidgetData()
@@ -61,10 +113,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Update widget data when app becomes active
         WidgetDataManager.shared.updateWidgetData()
+        
+        // Check and update streak reminder when app becomes active
+        NotificationManager.shared.scheduleStreakReminder()
+        
+        // Check if streak needs to be reset (user missed a day)
+        StreakManager.shared.checkAndResetStreakIfNeeded()
+        
+        // Post notification to reset app to first tab
+        NotificationCenter.default.post(name: .resetToDashboard, object: nil)
     }
 }
 
 // MARK: - Widget Data Manager
+@MainActor
 class WidgetDataManager {
     static let shared = WidgetDataManager()
     

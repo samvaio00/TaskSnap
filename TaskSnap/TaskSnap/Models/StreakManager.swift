@@ -26,6 +26,7 @@ class StreakManager: ObservableObject {
     func recordTaskCompletion() {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
+        var streakIncreased = false
         
         if let lastDate = lastCompletionDate {
             let lastDay = calendar.startOfDay(for: lastDate)
@@ -37,6 +38,7 @@ class StreakManager: ObservableObject {
                 if daysBetween == 1 {
                     // Consecutive day - increase streak
                     currentStreak += 1
+                    streakIncreased = true
                 } else {
                     // Streak broken - reset
                     currentStreak = 1
@@ -52,6 +54,13 @@ class StreakManager: ObservableObject {
             longestStreak = currentStreak
         }
         
+        // Play streak grow animation if streak increased (and not first completion)
+        if streakIncreased && currentStreak > 1 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                AnimationManager.shared.play(.streakGrow)
+            }
+        }
+        
         lastCompletionDate = Date()
         updatePlantGrowthStage()
         saveStreakData()
@@ -65,11 +74,19 @@ class StreakManager: ObservableObject {
         let lastDay = calendar.startOfDay(for: lastDate)
         
         if let daysBetween = calendar.dateComponents([.day], from: lastDay, to: today).day {
-            if daysBetween > 1 {
+            if daysBetween > 1 && currentStreak > 0 {
                 // More than one day missed - streak broken
+                let hadStreak = currentStreak > 1
                 currentStreak = 0
                 updatePlantGrowthStage()
                 saveStreakData()
+                
+                // Play streak break animation if user had an active streak
+                if hadStreak {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        AnimationManager.shared.play(.streakBreak)
+                    }
+                }
             }
         }
     }

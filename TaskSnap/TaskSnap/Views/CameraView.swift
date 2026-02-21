@@ -250,7 +250,10 @@ class CameraPreviewViewController: UIViewController {
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         previewLayer.frame = view.bounds
-        previewLayer.connection?.videoOrientation = .portrait
+        // Use videoRotationAngle for iOS 17+ (replaces deprecated videoOrientation)
+        if let connection = previewLayer.connection {
+            connection.videoRotationAngle = 90 // Portrait = 90 degrees
+        }
         view.layer.addSublayer(previewLayer)
         
         self.previewLayer = previewLayer

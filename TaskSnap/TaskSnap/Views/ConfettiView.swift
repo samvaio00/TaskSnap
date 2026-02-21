@@ -24,10 +24,23 @@ enum ConfettiStyle {
 
 struct ConfettiView: View {
     let reaction: String?
+    let theme: CelebrationTheme?
     @State private var particles: [ConfettiParticle] = []
     
+    init(reaction: String? = nil, theme: CelebrationTheme? = nil) {
+        self.reaction = reaction
+        self.theme = theme
+    }
+    
     private var style: ConfettiStyle {
-        ConfettiStyle.from(reaction: reaction ?? "🎉")
+        if let reaction = reaction {
+            return ConfettiStyle.from(reaction: reaction)
+        }
+        return .celebration
+    }
+    
+    private var currentTheme: CelebrationTheme {
+        theme ?? ThemeManager.shared.selectedTheme
     }
     
     var body: some View {
@@ -46,7 +59,7 @@ struct ConfettiView: View {
                             width: particle.size,
                             height: particle.size
                         ))
-                    case .rectangle:
+                    case .square:
                         path.addRect(CGRect(
                             x: particle.x,
                             y: particle.y,
@@ -72,6 +85,71 @@ struct ConfettiView: View {
                             width: particle.size,
                             height: particle.size
                         ))
+                    case .diamond:
+                        path.move(to: CGPoint(x: particle.x + particle.size/2, y: particle.y))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size, y: particle.y + particle.size/2))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size/2, y: particle.y + particle.size))
+                        path.addLine(to: CGPoint(x: particle.x, y: particle.y + particle.size/2))
+                        path.closeSubpath()
+                    case .square:
+                        path.addRect(CGRect(
+                            x: particle.x,
+                            y: particle.y,
+                            width: particle.size,
+                            height: particle.size
+                        ))
+                    case .ribbon:
+                        // Simplified ribbon as wavy line
+                        path.move(to: CGPoint(x: particle.x, y: particle.y))
+                        path.addQuadCurve(
+                            to: CGPoint(x: particle.x + particle.size, y: particle.y + particle.size),
+                            control: CGPoint(x: particle.x + particle.size/2, y: particle.y - particle.size/2)
+                        )
+                    case .flame:
+                        path.move(to: CGPoint(x: particle.x + particle.size/2, y: particle.y + particle.size))
+                        path.addQuadCurve(
+                            to: CGPoint(x: particle.x + particle.size/2, y: particle.y),
+                            control: CGPoint(x: particle.x, y: particle.y + particle.size/2)
+                        )
+                        path.addQuadCurve(
+                            to: CGPoint(x: particle.x + particle.size/2, y: particle.y + particle.size),
+                            control: CGPoint(x: particle.x + particle.size, y: particle.y + particle.size/2)
+                        )
+                    case .leaf:
+                        path.move(to: CGPoint(x: particle.x + particle.size/2, y: particle.y + particle.size))
+                        path.addQuadCurve(
+                            to: CGPoint(x: particle.x + particle.size/2, y: particle.y),
+                            control: CGPoint(x: particle.x, y: particle.y + particle.size/2)
+                        )
+                        path.addQuadCurve(
+                            to: CGPoint(x: particle.x + particle.size/2, y: particle.y + particle.size),
+                            control: CGPoint(x: particle.x + particle.size, y: particle.y + particle.size/2)
+                        )
+                    case .flower:
+                        // Simple flower as circle with petals
+                        path.addEllipse(in: CGRect(
+                            x: particle.x + particle.size/4,
+                            y: particle.y + particle.size/4,
+                            width: particle.size/2,
+                            height: particle.size/2
+                        ))
+                    case .bolt:
+                        path.move(to: CGPoint(x: particle.x + particle.size/2, y: particle.y))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size/3, y: particle.y + particle.size/2))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size*2/3, y: particle.y + particle.size/2))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size/2, y: particle.y + particle.size))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size*2/3, y: particle.y + particle.size/2))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size/3, y: particle.y + particle.size/2))
+                        path.closeSubpath()
+                    case .crown:
+                        path.move(to: CGPoint(x: particle.x, y: particle.y + particle.size))
+                        path.addLine(to: CGPoint(x: particle.x, y: particle.y + particle.size/2))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size/3, y: particle.y + particle.size/3))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size/2, y: particle.y))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size*2/3, y: particle.y + particle.size/3))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size, y: particle.y + particle.size/2))
+                        path.addLine(to: CGPoint(x: particle.x + particle.size, y: particle.y + particle.size))
+                        path.closeSubpath()
                     }
                     
                     context.translateBy(x: particle.x + particle.size/2, y: particle.y + particle.size/2)
@@ -81,7 +159,7 @@ struct ConfettiView: View {
                     context.fill(path, with: .color(particle.color.opacity(particle.opacity)))
                 }
             }
-            .onChange(of: timeline.date) { _ in
+            .onChange(of: timeline.date) { _, _ in
                 updateParticles(in: CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
             }
         }
@@ -92,6 +170,12 @@ struct ConfettiView: View {
     
     // MARK: - Style Configuration
     private var colors: [Color] {
+        // If theme is explicitly provided or no reaction, use theme colors
+        if theme != nil || reaction == nil {
+            return Array(currentTheme.confettiColors)
+        }
+        
+        // Otherwise use reaction-based colors
         switch style {
         case .celebration:
             return [.red, .blue, .green, .yellow, .pink, .purple, .orange]
@@ -194,8 +278,8 @@ struct ConfettiParticle {
 extension ConfettiStyle {
     var shape: ConfettiShape {
         switch self {
-        case .celebration: return [.circle, .rectangle, .triangle].randomElement()!
-        case .powerful: return .rectangle
+        case .celebration: return [.circle, .square, .triangle].randomElement()!
+        case .powerful: return .square
         case .sparkle: return .star
         case .fire: return [.triangle, .circle].randomElement()!
         case .praise: return [.star, .circle].randomElement()!
@@ -310,9 +394,7 @@ extension ConfettiStyle {
     }
 }
 
-enum ConfettiShape {
-    case circle, rectangle, triangle, star, heart
-}
+// ConfettiShape is defined in CelebrationTheme.swift
 
 // MARK: - Celebration View
 struct CelebrationView: View {
